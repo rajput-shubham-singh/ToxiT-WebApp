@@ -100,11 +100,15 @@ HI_ATTACK_PATTERNS = [
 # Threat patterns
 THREAT_MARKERS = [
     r"\bi\s+will\s+(kill|destroy|hurt|find)\b",
-    r"\bmaar\s+dunga\b", r"\bjaan\s+le\s+lunga\b",
-    r"\bdekh\s+lunga\b", r"\bdekhta\s+hu\s+tujhe\b",
+    r"\bkill\s+you\b", r"\bkill\s+u\b",
+    r"\bmaar\s+dunga\b", r"\bmaar\s+dungi\b",
+    r"\bjaan\s+le\s+lunga\b",
+    r"\bdekh\s+lunga\b", r"\bdekh\s+lungi\b",
+    r"\bdekhta\s+hu\s+tujhe\b",
     r"\btu\s+gaya\b", r"\bteri\s+to\b",
     r"\bteri\s+watt\s+laga\s+dunga\b",
-    r"\btod\s+dunga\b", r"\bpit\s+dunga\b",
+    r"\btod\s+dunga\b", r"\btod\s+dungi\b",
+    r"\bpit\s+dunga\b",
     r"\bghar\s+aa\b", r"\bmil\s+tu\b",
     r"\bwait\s+outside\b", r"\bdekh\s+lena\b",
 ]
@@ -289,6 +293,24 @@ def score_single_comment(comment: str, sensitivity: str = "medium", strict: bool
     hi_severe = count_phrases(text_lower, HI_INSULT_SEVERE)
     hi_medium = count_phrases(text_lower, HI_INSULT_MEDIUM)
     hi_aggro = count_phrases(text_lower, HI_AGGRESSIVE)
+
+    # Smart context: bc/mc/wtf/stfu used as filler ("bc yaar net slow hai")
+    # are downweighted unless paired with attack/insult/threat context.
+    casual_filler_hits = len(re.findall(r"\b(bc|mc|wtf|stfu)\b", text_lower))
+    if casual_filler_hits:
+        has_attack_context = (
+            count_pattern_hits(text_lower, HI_ATTACK_PATTERNS)
+            + count_pattern_hits(text_lower, THREAT_MARKERS)
+            + count_pattern_hits(text_lower, BULLY_PATTERNS)
+            + count_phrases(text_lower, HI_INSULT_SEVERE)
+            + count_phrases(text_lower, HI_INSULT_MEDIUM)
+            + count_phrases(text_lower, EN_SEVERE)
+            + count_phrases(text_lower, EN_HATE)
+            + count_phrases(text_lower, HI_AGGRESSIVE)
+        ) > 0
+        if not has_attack_context:
+            # treat fillers as casual venting, not personal attack
+            hi_abusive = max(0, hi_abusive - casual_filler_hits)
 
     positive = count_phrases(text_lower, POSITIVE)
 

@@ -140,8 +140,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 22px; border-radius: 12px; font-weight: 600; font-size: 14px; letter-spacing: 0.3px; transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s; user-select: none; }
 .btn:hover { transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
-.btn--primary { background: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 100%); color: #0b0c1a; box-shadow: 0 12px 30px rgba(139, 92, 246, 0.4); }
-.btn--primary:hover { box-shadow: 0 16px 40px rgba(34, 211, 238, 0.45); }
+.btn--primary { background: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 100%); color: #0b0c1a; padding: 13px 26px; box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset, 0 14px 34px rgba(139, 92, 246, 0.55), 0 0 22px rgba(34, 211, 238, 0.35); }
+.btn--primary:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(255,255,255,0.12) inset, 0 18px 46px rgba(34, 211, 238, 0.55), 0 0 30px rgba(139, 92, 246, 0.5); }
+.btn--primary:active { transform: translateY(0); }
 .btn--ghost { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12); }
 .btn--ghost:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(139, 92, 246, 0.5); }
 .btn--lg { padding: 14px 28px; font-size: 15px; }
@@ -157,8 +158,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ===== Sections / glass ===== */
 .section { max-width: 1280px; margin: 0 auto 64px; padding: 0 24px; }
-.glass { background: var(--glass-bg); border: 1px solid var(--glass-bd); border-radius: var(--radius); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: var(--shadow-glow); position: relative; }
-.card { padding: 26px; }
+.glass { background: var(--glass-bg); border: 1px solid var(--glass-bd); border-radius: var(--radius); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: var(--shadow-glow), 0 24px 60px rgba(8, 10, 28, 0.55), 0 0 1px rgba(139, 92, 246, 0.25) inset; position: relative; transition: box-shadow 0.25s ease, transform 0.25s ease; }
+.glass:hover { box-shadow: var(--shadow-glow), 0 32px 80px rgba(8, 10, 28, 0.65), 0 0 0 1px rgba(34, 211, 238, 0.18) inset; }
+.card { padding: 28px; }
 .card__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
 .card__header-right { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .card__title { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
