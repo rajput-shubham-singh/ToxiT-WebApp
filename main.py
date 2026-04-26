@@ -547,15 +547,16 @@ def final_label_for(toxicity, drift_score, aggression, threats):
 # 7. AGGREGATE ANALYSIS
 # ============================================================
 
-def analyze_history(comments, sensitivity="medium", strict=False, use_gemini=False):
+def analyze_history(comments, sensitivity="medium", strict=False, use_gemini=False, gemini_key=None):
     cleaned = [c.strip() for c in comments if c and c.strip()]
     if not cleaned:
         return {"error": "Please enter at least one comment."}
 
     gemini_result = None
     used_engine = "Local AI"
-    if use_gemini and _GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY"):
-        gemini_result = analyze_with_gemini(cleaned)
+    effective_key = gemini_key or os.environ.get("GEMINI_API_KEY")
+    if use_gemini and _GEMINI_AVAILABLE and effective_key:
+        gemini_result = analyze_with_gemini(cleaned, api_key=effective_key)
         if gemini_result:
             used_engine = "Gemini"
 
@@ -727,7 +728,7 @@ def _tags_for(b):
 # 8. CHAT (MULTI-USER) ANALYSIS
 # ============================================================
 
-def analyze_chat(messages, sensitivity="medium", strict=False, use_gemini=False):
+def analyze_chat(messages, sensitivity="medium", strict=False, use_gemini=False, gemini_key=None):
     """messages = [{user, text}, ...]"""
     cleaned = [m for m in messages if m.get("text", "").strip()]
     if not cleaned:
@@ -861,9 +862,9 @@ Comments:
 """
 
 
-def analyze_with_gemini(comments):
+def analyze_with_gemini(comments, api_key=None):
     try:
-        api_key = os.environ.get("GEMINI_API_KEY")
+        api_key = api_key or os.environ.get("GEMINI_API_KEY")
         if not api_key:
             return None
         genai.configure(api_key=api_key)
