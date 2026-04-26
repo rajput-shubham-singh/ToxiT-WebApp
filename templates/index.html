@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ToxiTrack AI - Multilingual Behavioral Drift Engine</title>
+  <title>ToxiTrack AI - Conversation Risk Analyzer</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,7 +11,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body data-gemini-ready="{{ 'true' if gemini_ready else 'false' }}">
-  <!-- Animated background -->
   <div class="bg-grid"></div>
   <div class="bg-orb bg-orb--violet"></div>
   <div class="bg-orb bg-orb--cyan"></div>
@@ -29,7 +28,7 @@
       </span>
       <div>
         <div class="nav__title">ToxiTrack <span class="nav__title-accent">AI</span></div>
-        <div class="nav__sub">Multilingual Drift Engine</div>
+        <div class="nav__sub">Conversation Risk Analyzer</div>
       </div>
     </div>
     <div class="nav__right">
@@ -47,33 +46,27 @@
     </div>
   </nav>
 
-  <!-- Settings Panel (collapsible) -->
+  <!-- Settings Panel -->
   <div class="settings glass hidden" id="settingsPanel">
     <div class="settings__row">
       <div class="settings__field">
         <label class="settings__label">Engine Mode</label>
         <div class="toggle">
           <input type="checkbox" id="geminiToggle" />
-          <label for="geminiToggle" class="toggle__track">
-            <span class="toggle__thumb"></span>
-          </label>
+          <label for="geminiToggle" class="toggle__track"><span class="toggle__thumb"></span></label>
           <span class="toggle__text" id="geminiText">Use Gemini API</span>
         </div>
         <div class="settings__hint" id="geminiHint">Local rule-based engine active.</div>
       </div>
-
       <div class="settings__field">
         <label class="settings__label">Strict Mode</label>
         <div class="toggle">
           <input type="checkbox" id="strictToggle" />
-          <label for="strictToggle" class="toggle__track">
-            <span class="toggle__thumb"></span>
-          </label>
+          <label for="strictToggle" class="toggle__track"><span class="toggle__thumb"></span></label>
           <span class="toggle__text">Stricter scoring</span>
         </div>
         <div class="settings__hint">Increases sensitivity to borderline content.</div>
       </div>
-
       <div class="settings__field">
         <label class="settings__label">Hindi Sensitivity</label>
         <div class="seg" role="tablist" id="hindiSeg">
@@ -88,115 +81,162 @@
 
   <!-- Hero -->
   <header class="hero">
-    <div class="hero__badge">
-      <span>Behavioral Drift Engine v2.0 · Multilingual</span>
-    </div>
-    <h1 class="hero__title">
-      Predict <span class="grad-text">toxicity</span> before it happens.
-    </h1>
+    <div class="hero__badge"><span>Conversation Risk Engine v3.0</span></div>
+    <h1 class="hero__title">Predict <span class="grad-text">conflict</span> before it ignites.</h1>
     <p class="hero__subtitle">
-      ToxiTrack AI reads English, Hindi, Hinglish &amp; Roman Hindi comment streams
-      to surface emotion, intent, drift type and the early signals of harm.
+      ToxiTrack AI reads English, Hindi, Hinglish &amp; Roman Hindi conversations to surface
+      emotion, intent, drift, the main aggressor and the early signals of harm — all in under a second.
     </p>
     <div class="hero__cta">
       <a href="#analyzer" class="btn btn--primary">Start Analysis</a>
       <a href="#how" class="btn btn--ghost">How it works</a>
     </div>
-
     <div class="hero__stats">
       <div class="stat"><span class="stat__num">4</span><span class="stat__label">Languages</span></div>
-      <div class="stat"><span class="stat__num">12+</span><span class="stat__label">Behavioral signals</span></div>
-      <div class="stat"><span class="stat__num">8</span><span class="stat__label">Emotion classes</span></div>
+      <div class="stat"><span class="stat__num">15+</span><span class="stat__label">Behavioral signals</span></div>
+      <div class="stat"><span class="stat__num">9</span><span class="stat__label">Emotion classes</span></div>
       <div class="stat"><span class="stat__num">&lt;1s</span><span class="stat__label">Avg latency</span></div>
     </div>
   </header>
 
-  <!-- Analyzer -->
+  <!-- Analyzer with TABS -->
   <section id="analyzer" class="section">
     <div class="card glass">
-      <div class="card__header">
-        <div>
-          <h2 class="card__title">Comment History Analyzer</h2>
-          <p class="card__subtitle">Paste recent comments — one per line. Hindi / Hinglish supported.</p>
+      <div class="tabs">
+        <button class="tab is-active" data-tab="single" type="button">
+          <span class="tab__icon">📝</span> Comment Analyzer
+        </button>
+        <button class="tab" data-tab="chat" type="button">
+          <span class="tab__icon">💬</span> Live Chat Mode
+        </button>
+      </div>
+
+      <!-- TAB 1: Single -->
+      <div class="tab-panel is-active" id="panel-single">
+        <div class="card__header">
+          <div>
+            <h2 class="card__title">Comment History Analyzer</h2>
+            <p class="card__subtitle">Paste recent comments — one per line. Hindi / Hinglish supported.</p>
+          </div>
+          <div class="card__actions">
+            <button class="btn btn--chip" id="demoBtn" type="button">Demo (English)</button>
+            <button class="btn btn--chip" id="demoHiBtn" type="button">Demo (Hinglish)</button>
+            <button class="btn btn--chip btn--chip-danger" id="resetBtn" type="button">Reset</button>
+          </div>
         </div>
-        <div class="card__actions">
-          <button class="btn btn--chip" id="demoBtn" type="button">Demo (English)</button>
-          <button class="btn btn--chip" id="demoHiBtn" type="button">Demo (Hinglish)</button>
-          <button class="btn btn--chip btn--chip-danger" id="resetBtn" type="button">Reset</button>
+
+        <textarea
+          id="commentsInput" class="textarea" rows="9"
+          placeholder="nice post bro&#10;tu pagal hai chup reh&#10;kya bakwas hai&#10;SHUT UP you idiot&#10;bhag yahan se"
+        ></textarea>
+
+        <div class="analyzer__footer">
+          <div class="hint" id="commentCount">0 comments</div>
+          <button class="btn btn--primary btn--lg" id="analyzeBtn" type="button">
+            <span class="btn__label">Analyze Behavior</span>
+            <span class="btn__spinner" aria-hidden="true"></span>
+          </button>
         </div>
       </div>
 
-      <textarea
-        id="commentsInput"
-        class="textarea"
-        rows="9"
-        placeholder="nice post bro
-tu pagal hai chup reh
-kya bakwas hai
-SHUT UP you idiot
-bhag yahan se"
-      ></textarea>
+      <!-- TAB 2: Chat -->
+      <div class="tab-panel" id="panel-chat">
+        <div class="card__header">
+          <div>
+            <h2 class="card__title">Live Chat Analyzer</h2>
+            <p class="card__subtitle">Build a conversation between users — we'll detect the main aggressor.</p>
+          </div>
+          <div class="card__actions">
+            <button class="btn btn--chip" id="chatDemoSafe" type="button">Demo: Safe</button>
+            <button class="btn btn--chip" id="chatDemoMed" type="button">Demo: Medium</button>
+            <button class="btn btn--chip" id="chatDemoHigh" type="button">Demo: High</button>
+            <button class="btn btn--chip btn--chip-danger" id="chatResetBtn" type="button">Reset</button>
+          </div>
+        </div>
 
-      <div class="analyzer__footer">
-        <div class="hint" id="commentCount">0 comments</div>
-        <button class="btn btn--primary btn--lg" id="analyzeBtn" type="button">
-          <span class="btn__label">Analyze Behavior</span>
-          <span class="btn__spinner" aria-hidden="true"></span>
-        </button>
+        <div class="chat-builder" id="chatBuilder"></div>
+
+        <div class="chat-builder__actions">
+          <button class="btn btn--ghost btn--sm" id="addMsgBtn" type="button">
+            <span style="font-size:18px;line-height:1;">+</span> Add Message
+          </button>
+          <div class="hint" id="chatCount">0 messages</div>
+        </div>
+
+        <div class="analyzer__footer">
+          <div class="hint">Tip: switch user with the dropdown to simulate a real conversation.</div>
+          <button class="btn btn--primary btn--lg" id="analyzeChatBtn" type="button">
+            <span class="btn__label">Analyze Conversation</span>
+            <span class="btn__spinner" aria-hidden="true"></span>
+          </button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Dashboard (hidden until first run) -->
+  <!-- Dashboard -->
   <section id="dashboard" class="section dashboard hidden">
-    <!-- Top metric cards (5 of them) -->
-    <div class="metrics">
+    <!-- Top metric cards -->
+    <div class="metrics metrics--five">
       <div class="metric glass">
-        <div class="metric__label">Toxicity Score</div>
+        <div class="metric__label">Toxicity</div>
         <div class="metric__value" id="toxicityValue">0</div>
-        <div class="metric__bar">
-          <div class="metric__bar-fill metric__bar-fill--toxic" id="toxicityBar"></div>
-        </div>
+        <div class="metric__bar"><div class="metric__bar-fill metric__bar-fill--toxic" id="toxicityBar"></div></div>
         <div class="metric__hint">Aggregate hostility</div>
       </div>
-
       <div class="metric glass">
-        <div class="metric__label">Drift Score</div>
+        <div class="metric__label">Aggression</div>
+        <div class="metric__value" id="aggressionValue">0</div>
+        <div class="metric__bar"><div class="metric__bar-fill metric__bar-fill--aggression" id="aggressionBar"></div></div>
+        <div class="metric__hint">Threat &amp; attack energy</div>
+      </div>
+      <div class="metric glass">
+        <div class="metric__label">Drift</div>
         <div class="metric__value" id="driftValue">0</div>
-        <div class="metric__bar">
-          <div class="metric__bar-fill metric__bar-fill--drift" id="driftBar"></div>
-        </div>
+        <div class="metric__bar"><div class="metric__bar-fill metric__bar-fill--drift" id="driftBar"></div></div>
         <div class="metric__hint" id="driftHint">Behavioral change</div>
       </div>
+      <div class="metric glass">
+        <div class="metric__label">Escalation Chance</div>
+        <div class="metric__value" id="escalationValue">0</div>
+        <div class="metric__bar"><div class="metric__bar-fill metric__bar-fill--escalation" id="escalationBar"></div></div>
+        <div class="metric__hint">Likely to worsen</div>
+      </div>
+      <div class="metric metric--risk glass" id="riskCard">
+        <div class="metric__label">Final Risk</div>
+        <div class="risk-badge" id="riskBadge">Safe</div>
+        <div class="metric__hint" id="riskHint">Confidence —</div>
+      </div>
+    </div>
 
+    <!-- Secondary row: Emotion / Intent / Threat Level / Engine -->
+    <div class="metrics metrics--four">
       <div class="metric glass">
         <div class="metric__label">Emotion</div>
         <div class="metric__chip" id="emotionChip">—</div>
         <div class="metric__hint" id="emotionHint">Dominant feeling</div>
       </div>
-
       <div class="metric glass">
         <div class="metric__label">Intent</div>
         <div class="metric__chip" id="intentChip">—</div>
-        <div class="metric__hint">Underlying user intent</div>
+        <div class="metric__hint">User intent</div>
       </div>
-
-      <div class="metric metric--risk glass" id="riskCard">
-        <div class="metric__label">Risk Level</div>
-        <div class="risk-badge" id="riskBadge">LOW</div>
-        <div class="metric__hint" id="riskHint">Confidence —</div>
+      <div class="metric glass">
+        <div class="metric__label">Threat Level</div>
+        <div class="threat-badge" id="threatBadge">NONE</div>
+        <div class="metric__hint" id="threatHint">No threats found</div>
+      </div>
+      <div class="metric glass">
+        <div class="metric__label">Engine</div>
+        <div class="metric__chip metric__chip--engine" id="engineChip">Local AI</div>
+        <div class="metric__hint" id="engineSubHint">Rule-based scoring</div>
       </div>
     </div>
 
     <!-- Heat gauge + drift type + community health row -->
     <div class="dashboard__row3">
       <div class="card glass card--gauge">
-        <div class="card__header">
-          <div>
-            <h3 class="card__title">Heat Meter</h3>
-            <p class="card__subtitle">Live temperature reading</p>
-          </div>
-        </div>
+        <div class="card__header"><div><h3 class="card__title">Heat Meter</h3><p class="card__subtitle">Live temperature</p></div></div>
         <div class="gauge">
           <svg viewBox="0 0 200 120" class="gauge__svg" aria-hidden="true">
             <defs>
@@ -217,25 +257,15 @@ bhag yahan se"
       </div>
 
       <div class="card glass card--drift">
-        <div class="card__header">
-          <div>
-            <h3 class="card__title">Drift Type</h3>
-            <p class="card__subtitle">Behavioral trajectory</p>
-          </div>
-        </div>
-        <div class="drift-display" id="driftDisplay">
+        <div class="card__header"><div><h3 class="card__title">Drift Type</h3><p class="card__subtitle">Behavioral trajectory</p></div></div>
+        <div class="drift-display">
           <div class="drift-display__type" id="driftTypeText">Stable</div>
           <div class="drift-timeline" id="driftTimeline"></div>
         </div>
       </div>
 
       <div class="card glass card--health">
-        <div class="card__header">
-          <div>
-            <h3 class="card__title">Community Health</h3>
-            <p class="card__subtitle">Overall wellness score</p>
-          </div>
-        </div>
+        <div class="card__header"><div><h3 class="card__title">Conversation Health</h3><p class="card__subtitle">Wellness score</p></div></div>
         <div class="health-ring">
           <svg viewBox="0 0 120 120" class="health-ring__svg">
             <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
@@ -249,7 +279,48 @@ bhag yahan se"
       </div>
     </div>
 
-    <!-- Explanation + Action + Moderator alert -->
+    <!-- Chat-only: Aggressor + Per-User Cards -->
+    <div class="dashboard__chat-only hidden" id="chatOnlySection">
+      <div class="dashboard__row">
+        <div class="card glass card--aggressor" id="aggressorCard">
+          <h3 class="card__title">Main Aggressor</h3>
+          <div class="aggressor-display">
+            <div class="aggressor-display__avatar" id="aggressorAvatar">?</div>
+            <div>
+              <div class="aggressor-display__name" id="aggressorName">None</div>
+              <div class="aggressor-display__sub">Driving the conflict</div>
+            </div>
+          </div>
+          <div class="aggressor-stats">
+            <div class="stat-pill"><span class="stat-pill__label">Victim Pressure</span><span class="stat-pill__value" id="victimPressureVal">Low</span></div>
+            <div class="stat-pill"><span class="stat-pill__label">Mutual Toxicity</span><span class="stat-pill__value" id="mutualToxVal">0%</span></div>
+          </div>
+        </div>
+
+        <div class="card glass card--patterns">
+          <h3 class="card__title">Conversation Patterns</h3>
+          <div class="pattern-list" id="patternList">
+            <span class="pattern-tag pattern-tag--empty">No notable patterns</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card glass">
+        <div class="card__header">
+          <div><h3 class="card__title">User Breakdown</h3><p class="card__subtitle">Per-user behavioral signals</p></div>
+        </div>
+        <div class="users-grid" id="usersGrid"></div>
+      </div>
+
+      <div class="card glass">
+        <div class="card__header">
+          <div><h3 class="card__title">Chat Replay</h3><p class="card__subtitle">Bubble view with per-message score</p></div>
+        </div>
+        <div class="chat-replay" id="chatReplay"></div>
+      </div>
+    </div>
+
+    <!-- Explanation + Action -->
     <div class="dashboard__row">
       <div class="card glass card--explain">
         <h3 class="card__title">AI Explanation</h3>
@@ -259,9 +330,7 @@ bhag yahan se"
       <div class="card glass card--action" id="actionCard">
         <h3 class="card__title">Recommended Action</h3>
         <div class="action-icon" id="actionIcon">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 22s8-4 8-12V5l-8-3-8 3v5c0 8 8 12 8 12z" stroke="currentColor" stroke-width="1.6"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-12V5l-8-3-8 3v5c0 8 8 12 8 12z" stroke="currentColor" stroke-width="1.6"/></svg>
         </div>
         <div class="action-text" id="actionText">Awaiting analysis…</div>
         <div class="moderator-alert hidden" id="moderatorAlert">
@@ -271,14 +340,11 @@ bhag yahan se"
       </div>
     </div>
 
-    <!-- Rewrite + Safe Reply suggestion -->
+    <!-- Rewrite + Safe Reply -->
     <div class="dashboard__row">
       <div class="card glass card--suggest">
         <div class="card__header">
-          <div>
-            <h3 class="card__title">Rewrite Suggestion</h3>
-            <p class="card__subtitle">Polite version of the most toxic comment</p>
-          </div>
+          <div><h3 class="card__title">Rewrite Suggestion</h3><p class="card__subtitle">Polite version of the most toxic message</p></div>
           <span class="badge-soft">Auto-rewriter</span>
         </div>
         <div class="suggest-body" id="rewriteBody">
@@ -288,10 +354,7 @@ bhag yahan se"
 
       <div class="card glass card--suggest">
         <div class="card__header">
-          <div>
-            <h3 class="card__title">Safe Reply</h3>
-            <p class="card__subtitle">Calming response for moderators</p>
-          </div>
+          <div><h3 class="card__title">Safe Reply</h3><p class="card__subtitle">Calming response for moderators</p></div>
           <span class="badge-soft">De-escalation</span>
         </div>
         <div class="safe-reply" id="safeReplyText">—</div>
@@ -301,26 +364,19 @@ bhag yahan se"
     <!-- Trend chart -->
     <div class="card glass">
       <div class="card__header">
-        <div>
-          <h3 class="card__title">Toxicity Trend</h3>
-          <p class="card__subtitle">Comment-by-comment hostility curve</p>
-        </div>
-        <div class="legend">
-          <span class="legend__dot legend__dot--violet"></span><span>Toxicity</span>
+        <div><h3 class="card__title">Toxicity Trend</h3><p class="card__subtitle">Message-by-message hostility curve</p></div>
+        <div class="card__header-right">
+          <div class="legend"><span class="legend__dot legend__dot--violet"></span><span>Toxicity</span></div>
+          <button class="btn btn--chip" id="exportBtn" type="button">⤓ Export Report</button>
         </div>
       </div>
-      <div class="chart-wrap">
-        <canvas id="trendChart"></canvas>
-      </div>
+      <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
     </div>
 
-    <!-- Comment by comment breakdown -->
+    <!-- Comment-by-comment breakdown -->
     <div class="card glass">
       <div class="card__header">
-        <div>
-          <h3 class="card__title">Comment Breakdown</h3>
-          <p class="card__subtitle">Per-message score, emotion &amp; reasoning</p>
-        </div>
+        <div><h3 class="card__title">Message Breakdown</h3><p class="card__subtitle">Per-message score, emotion &amp; toxic word highlights</p></div>
       </div>
       <div class="breakdown" id="breakdownList"></div>
     </div>
@@ -332,17 +388,17 @@ bhag yahan se"
       <div class="how__item glass">
         <div class="how__num">01</div>
         <h4>Multilingual Lexicon</h4>
-        <p>Severe abuse, profanity, attacks and insults across English, Hindi, Hinglish and Roman Hindi are weighted by intensity tier.</p>
+        <p>15+ signal categories across English, Hindi, Hinglish and Roman Hindi — abuse, threats, bullying, passive-aggression and more.</p>
       </div>
       <div class="how__item glass">
         <div class="how__num">02</div>
         <h4>Context Aware</h4>
-        <p>Phrase patterns like "X level funny", emojis and questions de-weight playful tone, while "tu X hai" patterns escalate.</p>
+        <p>Phrase patterns like "X level funny", emojis, apologies and questions de-weight tone, while attacks like "tu X hai" escalate it.</p>
       </div>
       <div class="how__item glass">
         <div class="how__num">03</div>
-        <h4>Drift Detection</h4>
-        <p>Earlier vs later comments are compared to label conversations as Stable, Slowly Negative, Rapid Escalation or Recovery.</p>
+        <h4>Aggressor Detection</h4>
+        <p>In Live Chat mode we identify the main aggressor, the victim's pressure level and the mutual-toxicity ratio between users.</p>
       </div>
       <div class="how__item glass">
         <div class="how__num">04</div>
@@ -354,7 +410,7 @@ bhag yahan se"
 
   <footer class="footer">
     <div>Built for Hackathon | AI for Safer Communities</div>
-    <div class="footer__sub">ToxiTrack AI · Multilingual Behavioral Drift Engine v2.0</div>
+    <div class="footer__sub">ToxiTrack AI · Conversation Risk Engine v3.0</div>
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
