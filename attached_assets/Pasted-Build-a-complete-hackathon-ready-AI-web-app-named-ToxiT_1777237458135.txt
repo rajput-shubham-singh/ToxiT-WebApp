@@ -1,0 +1,104 @@
+Build a complete hackathon-ready AI web app named "ToxiTrack AI" using Python Flask backend + modern HTML/CSS/JS frontend in a single Replit project.
+
+GOAL:
+Create an app for the topic: Behavioral Drift and Toxicity Escalation Prediction.
+
+The app should predict if a user's recent comment history shows rising toxicity and risk of future harmful behavior.
+
+IMPORTANT:
+Make everything production-looking, modern, clean, dark futuristic UI, responsive, attractive animations, glassmorphism cards, charts, gradients. It should look like a winning hackathon project.
+
+TECH STACK:
+- Python Flask backend
+- HTML templates
+- CSS
+- Vanilla JS
+- Chart.js for graphs
+
+NO paid APIs.
+NO login required.
+Everything should run directly on Replit.
+
+FEATURES REQUIRED:
+
+1. Landing Page
+- Title: ToxiTrack AI
+- Subtitle: Predict toxicity before it happens
+- Beautiful hero section
+- Start Analysis button
+
+2. Analyzer Section
+Textarea where user pastes multiple comments (one per line), example:
+
+Nice post bro
+I disagree with this
+This is stupid
+You are an idiot
+Shut up
+
+Button: Analyze Behavior
+
+3. Backend Logic (important)
+Create intelligent rule-based AI scoring system:
+- Detect toxic words list
+- Detect aggression increase
+- Detect negative sentiment trend
+- Detect profanity frequency
+- Compare early comments vs later comments
+- Generate:
+    toxicity_score (0-100)
+    drift_score (0-100)
+    escalation_risk = LOW / MEDIUM / HIGH
+
+4. Dashboard Output
+After clicking analyze show:
+
+- Toxicity Score card
+- Drift Score card
+- Risk Level badge
+- AI Explanation text
+- Recommended Action
+- Toxicity Trend line chart across comments
+- Comment by comment breakdown
+
+5. Example Explanations:
+- Language became more aggressive over time
+- Negative sentiment increased in later comments
+- Multiple abusive keywords detected
+- Rapid escalation pattern found
+
+6. Recommended Actions:
+LOW = Safe
+MEDIUM = Monitor user
+HIGH = Immediate moderation review
+
+7. Add Demo Data button
+Auto-fill sample comments.
+
+8. Add Reset button
+
+9. Add Footer:
+Built for Hackathon | AI for Safer Communities
+
+10. File Structure
+Generate all files correctly:
+main.py
+templates/index.html
+static/style.css
+static/script.js
+
+11. Flask Requirements
+Use render_template.
+Use POST form submit or fetch API.
+Run on host 0.0.0.0 and port from environment.
+
+12. Make sure Replit runs instantly with no missing imports except Flask and Chart.js CDN.
+
+13. UI should be seriously impressive, judges should be wowed.
+
+14. Add comments in code so beginner can understand.
+
+15. At the end also print setup instructions:
+How to run on Replit.
+
+Now generate the FULL working code for all files.

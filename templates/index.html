@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ToxiTrack AI - Predict Toxicity Before It Happens</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- Animated background grid + orbs -->
+  <div class="bg-grid"></div>
+  <div class="bg-orb bg-orb--violet"></div>
+  <div class="bg-orb bg-orb--cyan"></div>
+  <div class="bg-orb bg-orb--magenta"></div>
+
+  <!-- Top nav -->
+  <nav class="nav">
+    <div class="nav__brand">
+      <span class="nav__logo">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 2L3 6v6c0 5.25 3.75 9.75 9 11 5.25-1.25 9-5.75 9-11V6l-9-4z" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="nav__title">ToxiTrack <span class="nav__title-accent">AI</span></span>
+    </div>
+    <div class="nav__pill">
+      <span class="status-dot"></span>
+      <span>Model Online</span>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero__badge">
+      <span>Behavioral Drift Engine v1.0</span>
+    </div>
+    <h1 class="hero__title">
+      Predict <span class="grad-text">toxicity</span> before it happens.
+    </h1>
+    <p class="hero__subtitle">
+      ToxiTrack AI analyzes a user's recent comment history to detect rising hostility,
+      sentiment drift, and the early warning signs of harmful behavior.
+    </p>
+    <div class="hero__cta">
+      <a href="#analyzer" class="btn btn--primary">Start Analysis</a>
+      <a href="#how" class="btn btn--ghost">How it works</a>
+    </div>
+
+    <div class="hero__stats">
+      <div class="stat">
+        <span class="stat__num">7+</span>
+        <span class="stat__label">Behavioral signals</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num">0</span>
+        <span class="stat__label">API keys needed</span>
+      </div>
+      <div class="stat">
+        <span class="stat__num">&lt;1s</span>
+        <span class="stat__label">Avg. analysis time</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Analyzer -->
+  <section id="analyzer" class="section">
+    <div class="card glass">
+      <div class="card__header">
+        <div>
+          <h2 class="card__title">Comment History Analyzer</h2>
+          <p class="card__subtitle">Paste a user's recent comments - one per line.</p>
+        </div>
+        <div class="card__actions">
+          <button class="btn btn--chip" id="demoBtn" type="button">Demo Data</button>
+          <button class="btn btn--chip btn--chip-danger" id="resetBtn" type="button">Reset</button>
+        </div>
+      </div>
+
+      <textarea
+        id="commentsInput"
+        class="textarea"
+        rows="9"
+        placeholder="Nice post bro&#10;I disagree with this&#10;This is stupid&#10;You are an idiot&#10;Shut up"
+      ></textarea>
+
+      <div class="analyzer__footer">
+        <div class="hint" id="commentCount">0 comments</div>
+        <button class="btn btn--primary btn--lg" id="analyzeBtn" type="button">
+          <span class="btn__label">Analyze Behavior</span>
+          <span class="btn__spinner" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard (hidden until first run) -->
+  <section id="dashboard" class="section dashboard hidden">
+    <!-- Top metric cards -->
+    <div class="metrics">
+      <div class="metric glass">
+        <div class="metric__label">Toxicity Score</div>
+        <div class="metric__value" id="toxicityValue">0</div>
+        <div class="metric__bar">
+          <div class="metric__bar-fill metric__bar-fill--toxic" id="toxicityBar"></div>
+        </div>
+        <div class="metric__hint">Aggregate hostility across all comments</div>
+      </div>
+
+      <div class="metric glass">
+        <div class="metric__label">Drift Score</div>
+        <div class="metric__value" id="driftValue">0</div>
+        <div class="metric__bar">
+          <div class="metric__bar-fill metric__bar-fill--drift" id="driftBar"></div>
+        </div>
+        <div class="metric__hint" id="driftHint">Behavioral change over time</div>
+      </div>
+
+      <div class="metric metric--risk glass" id="riskCard">
+        <div class="metric__label">Escalation Risk</div>
+        <div class="risk-badge" id="riskBadge">LOW</div>
+        <div class="metric__hint" id="riskHint">Real-time risk classification</div>
+      </div>
+    </div>
+
+    <!-- Explanation + action -->
+    <div class="dashboard__row">
+      <div class="card glass card--explain">
+        <h3 class="card__title">AI Explanation</h3>
+        <ul class="explain-list" id="explainList"></ul>
+      </div>
+
+      <div class="card glass card--action" id="actionCard">
+        <h3 class="card__title">Recommended Action</h3>
+        <div class="action-icon" id="actionIcon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22s8-4 8-12V5l-8-3-8 3v5c0 8 8 12 8 12z" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <div class="action-text" id="actionText">Awaiting analysis...</div>
+      </div>
+    </div>
+
+    <!-- Trend chart -->
+    <div class="card glass">
+      <div class="card__header">
+        <div>
+          <h3 class="card__title">Toxicity Trend</h3>
+          <p class="card__subtitle">Comment-by-comment hostility curve</p>
+        </div>
+        <div class="legend">
+          <span class="legend__dot legend__dot--violet"></span>
+          <span>Toxicity</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Comment by comment breakdown -->
+    <div class="card glass">
+      <div class="card__header">
+        <div>
+          <h3 class="card__title">Comment Breakdown</h3>
+          <p class="card__subtitle">Per-message scoring &amp; signal tags</p>
+        </div>
+      </div>
+      <div class="breakdown" id="breakdownList"></div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how" class="section">
+    <div class="how">
+      <div class="how__item glass">
+        <div class="how__num">01</div>
+        <h4>Lexicon Signals</h4>
+        <p>Severe toxic terms, profanity, aggression and negative sentiment are weighted across each comment.</p>
+      </div>
+      <div class="how__item glass">
+        <div class="how__num">02</div>
+        <h4>Drift Detection</h4>
+        <p>Earlier comments are compared against later ones to surface escalating, calming, or stable trends.</p>
+      </div>
+      <div class="how__item glass">
+        <div class="how__num">03</div>
+        <h4>Risk Classification</h4>
+        <p>A blended score maps the user into LOW, MEDIUM or HIGH and recommends an action for moderators.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>Built for Hackathon | AI for Safer Communities</div>
+    <div class="footer__sub">ToxiTrack AI &middot; Behavioral Drift Engine</div>
+  </footer>
+
+  <!-- Toast container -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
