@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ToxiTrack AI - Predict Toxicity Before It Happens</title>
+  <title>ToxiTrack AI - Multilingual Behavioral Drift Engine</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
-<body>
-  <!-- Animated background grid + orbs -->
+<body data-gemini-ready="{{ 'true' if gemini_ready else 'false' }}">
+  <!-- Animated background -->
   <div class="bg-grid"></div>
   <div class="bg-orb bg-orb--violet"></div>
   <div class="bg-orb bg-orb--cyan"></div>
   <div class="bg-orb bg-orb--magenta"></div>
+  <div class="bg-scan"></div>
 
   <!-- Top nav -->
   <nav class="nav">
@@ -26,25 +27,76 @@
           <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
-      <span class="nav__title">ToxiTrack <span class="nav__title-accent">AI</span></span>
+      <div>
+        <div class="nav__title">ToxiTrack <span class="nav__title-accent">AI</span></div>
+        <div class="nav__sub">Multilingual Drift Engine</div>
+      </div>
     </div>
-    <div class="nav__pill">
-      <span class="status-dot"></span>
-      <span>Model Online</span>
+    <div class="nav__right">
+      <div class="nav__pill" id="enginePill">
+        <span class="status-dot"></span>
+        <span id="engineLabel">Local AI Mode</span>
+      </div>
+      <button class="btn btn--chip" id="settingsToggle" type="button" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Settings
+      </button>
     </div>
   </nav>
+
+  <!-- Settings Panel (collapsible) -->
+  <div class="settings glass hidden" id="settingsPanel">
+    <div class="settings__row">
+      <div class="settings__field">
+        <label class="settings__label">Engine Mode</label>
+        <div class="toggle">
+          <input type="checkbox" id="geminiToggle" />
+          <label for="geminiToggle" class="toggle__track">
+            <span class="toggle__thumb"></span>
+          </label>
+          <span class="toggle__text" id="geminiText">Use Gemini API</span>
+        </div>
+        <div class="settings__hint" id="geminiHint">Local rule-based engine active.</div>
+      </div>
+
+      <div class="settings__field">
+        <label class="settings__label">Strict Mode</label>
+        <div class="toggle">
+          <input type="checkbox" id="strictToggle" />
+          <label for="strictToggle" class="toggle__track">
+            <span class="toggle__thumb"></span>
+          </label>
+          <span class="toggle__text">Stricter scoring</span>
+        </div>
+        <div class="settings__hint">Increases sensitivity to borderline content.</div>
+      </div>
+
+      <div class="settings__field">
+        <label class="settings__label">Hindi Sensitivity</label>
+        <div class="seg" role="tablist" id="hindiSeg">
+          <button class="seg__btn" data-value="low" type="button">Low</button>
+          <button class="seg__btn is-active" data-value="medium" type="button">Medium</button>
+          <button class="seg__btn" data-value="high" type="button">High</button>
+        </div>
+        <div class="settings__hint">Adjust weighting for Hindi/Hinglish insults.</div>
+      </div>
+    </div>
+  </div>
 
   <!-- Hero -->
   <header class="hero">
     <div class="hero__badge">
-      <span>Behavioral Drift Engine v1.0</span>
+      <span>Behavioral Drift Engine v2.0 · Multilingual</span>
     </div>
     <h1 class="hero__title">
       Predict <span class="grad-text">toxicity</span> before it happens.
     </h1>
     <p class="hero__subtitle">
-      ToxiTrack AI analyzes a user's recent comment history to detect rising hostility,
-      sentiment drift, and the early warning signs of harmful behavior.
+      ToxiTrack AI reads English, Hindi, Hinglish &amp; Roman Hindi comment streams
+      to surface emotion, intent, drift type and the early signals of harm.
     </p>
     <div class="hero__cta">
       <a href="#analyzer" class="btn btn--primary">Start Analysis</a>
@@ -52,18 +104,10 @@
     </div>
 
     <div class="hero__stats">
-      <div class="stat">
-        <span class="stat__num">7+</span>
-        <span class="stat__label">Behavioral signals</span>
-      </div>
-      <div class="stat">
-        <span class="stat__num">0</span>
-        <span class="stat__label">API keys needed</span>
-      </div>
-      <div class="stat">
-        <span class="stat__num">&lt;1s</span>
-        <span class="stat__label">Avg. analysis time</span>
-      </div>
+      <div class="stat"><span class="stat__num">4</span><span class="stat__label">Languages</span></div>
+      <div class="stat"><span class="stat__num">12+</span><span class="stat__label">Behavioral signals</span></div>
+      <div class="stat"><span class="stat__num">8</span><span class="stat__label">Emotion classes</span></div>
+      <div class="stat"><span class="stat__num">&lt;1s</span><span class="stat__label">Avg latency</span></div>
     </div>
   </header>
 
@@ -73,10 +117,11 @@
       <div class="card__header">
         <div>
           <h2 class="card__title">Comment History Analyzer</h2>
-          <p class="card__subtitle">Paste a user's recent comments - one per line.</p>
+          <p class="card__subtitle">Paste recent comments — one per line. Hindi / Hinglish supported.</p>
         </div>
         <div class="card__actions">
-          <button class="btn btn--chip" id="demoBtn" type="button">Demo Data</button>
+          <button class="btn btn--chip" id="demoBtn" type="button">Demo (English)</button>
+          <button class="btn btn--chip" id="demoHiBtn" type="button">Demo (Hinglish)</button>
           <button class="btn btn--chip btn--chip-danger" id="resetBtn" type="button">Reset</button>
         </div>
       </div>
@@ -85,7 +130,11 @@
         id="commentsInput"
         class="textarea"
         rows="9"
-        placeholder="Nice post bro&#10;I disagree with this&#10;This is stupid&#10;You are an idiot&#10;Shut up"
+        placeholder="nice post bro
+tu pagal hai chup reh
+kya bakwas hai
+SHUT UP you idiot
+bhag yahan se"
       ></textarea>
 
       <div class="analyzer__footer">
@@ -100,7 +149,7 @@
 
   <!-- Dashboard (hidden until first run) -->
   <section id="dashboard" class="section dashboard hidden">
-    <!-- Top metric cards -->
+    <!-- Top metric cards (5 of them) -->
     <div class="metrics">
       <div class="metric glass">
         <div class="metric__label">Toxicity Score</div>
@@ -108,7 +157,7 @@
         <div class="metric__bar">
           <div class="metric__bar-fill metric__bar-fill--toxic" id="toxicityBar"></div>
         </div>
-        <div class="metric__hint">Aggregate hostility across all comments</div>
+        <div class="metric__hint">Aggregate hostility</div>
       </div>
 
       <div class="metric glass">
@@ -117,17 +166,90 @@
         <div class="metric__bar">
           <div class="metric__bar-fill metric__bar-fill--drift" id="driftBar"></div>
         </div>
-        <div class="metric__hint" id="driftHint">Behavioral change over time</div>
+        <div class="metric__hint" id="driftHint">Behavioral change</div>
+      </div>
+
+      <div class="metric glass">
+        <div class="metric__label">Emotion</div>
+        <div class="metric__chip" id="emotionChip">—</div>
+        <div class="metric__hint" id="emotionHint">Dominant feeling</div>
+      </div>
+
+      <div class="metric glass">
+        <div class="metric__label">Intent</div>
+        <div class="metric__chip" id="intentChip">—</div>
+        <div class="metric__hint">Underlying user intent</div>
       </div>
 
       <div class="metric metric--risk glass" id="riskCard">
-        <div class="metric__label">Escalation Risk</div>
+        <div class="metric__label">Risk Level</div>
         <div class="risk-badge" id="riskBadge">LOW</div>
-        <div class="metric__hint" id="riskHint">Real-time risk classification</div>
+        <div class="metric__hint" id="riskHint">Confidence —</div>
       </div>
     </div>
 
-    <!-- Explanation + action -->
+    <!-- Heat gauge + drift type + community health row -->
+    <div class="dashboard__row3">
+      <div class="card glass card--gauge">
+        <div class="card__header">
+          <div>
+            <h3 class="card__title">Heat Meter</h3>
+            <p class="card__subtitle">Live temperature reading</p>
+          </div>
+        </div>
+        <div class="gauge">
+          <svg viewBox="0 0 200 120" class="gauge__svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#22c55e"/>
+                <stop offset="50%" stop-color="#f59e0b"/>
+                <stop offset="100%" stop-color="#ef4444"/>
+              </linearGradient>
+            </defs>
+            <path d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="14" stroke-linecap="round"/>
+            <path id="gaugeArc" d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke="url(#gaugeGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+            <line id="gaugeNeedle" x1="100" y1="110" x2="100" y2="40" stroke="#e7e9ff" stroke-width="3" stroke-linecap="round" transform="rotate(-90 100 110)"/>
+            <circle cx="100" cy="110" r="6" fill="#e7e9ff"/>
+          </svg>
+          <div class="gauge__value" id="gaugeValue">0</div>
+          <div class="gauge__label">Heat Index</div>
+        </div>
+      </div>
+
+      <div class="card glass card--drift">
+        <div class="card__header">
+          <div>
+            <h3 class="card__title">Drift Type</h3>
+            <p class="card__subtitle">Behavioral trajectory</p>
+          </div>
+        </div>
+        <div class="drift-display" id="driftDisplay">
+          <div class="drift-display__type" id="driftTypeText">Stable</div>
+          <div class="drift-timeline" id="driftTimeline"></div>
+        </div>
+      </div>
+
+      <div class="card glass card--health">
+        <div class="card__header">
+          <div>
+            <h3 class="card__title">Community Health</h3>
+            <p class="card__subtitle">Overall wellness score</p>
+          </div>
+        </div>
+        <div class="health-ring">
+          <svg viewBox="0 0 120 120" class="health-ring__svg">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+            <circle id="healthArc" cx="60" cy="60" r="50" fill="none" stroke="url(#gaugeGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="health-ring__inner">
+            <div class="health-ring__num" id="healthValue">100</div>
+            <div class="health-ring__label">/ 100</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanation + Action + Moderator alert -->
     <div class="dashboard__row">
       <div class="card glass card--explain">
         <h3 class="card__title">AI Explanation</h3>
@@ -141,7 +263,38 @@
             <path d="M12 22s8-4 8-12V5l-8-3-8 3v5c0 8 8 12 8 12z" stroke="currentColor" stroke-width="1.6"/>
           </svg>
         </div>
-        <div class="action-text" id="actionText">Awaiting analysis...</div>
+        <div class="action-text" id="actionText">Awaiting analysis…</div>
+        <div class="moderator-alert hidden" id="moderatorAlert">
+          <span class="moderator-alert__pulse"></span>
+          <span>Human moderator review required</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rewrite + Safe Reply suggestion -->
+    <div class="dashboard__row">
+      <div class="card glass card--suggest">
+        <div class="card__header">
+          <div>
+            <h3 class="card__title">Rewrite Suggestion</h3>
+            <p class="card__subtitle">Polite version of the most toxic comment</p>
+          </div>
+          <span class="badge-soft">Auto-rewriter</span>
+        </div>
+        <div class="suggest-body" id="rewriteBody">
+          <div class="suggest-empty">No toxic comment detected — nothing to rewrite.</div>
+        </div>
+      </div>
+
+      <div class="card glass card--suggest">
+        <div class="card__header">
+          <div>
+            <h3 class="card__title">Safe Reply</h3>
+            <p class="card__subtitle">Calming response for moderators</p>
+          </div>
+          <span class="badge-soft">De-escalation</span>
+        </div>
+        <div class="safe-reply" id="safeReplyText">—</div>
       </div>
     </div>
 
@@ -153,8 +306,7 @@
           <p class="card__subtitle">Comment-by-comment hostility curve</p>
         </div>
         <div class="legend">
-          <span class="legend__dot legend__dot--violet"></span>
-          <span>Toxicity</span>
+          <span class="legend__dot legend__dot--violet"></span><span>Toxicity</span>
         </div>
       </div>
       <div class="chart-wrap">
@@ -167,7 +319,7 @@
       <div class="card__header">
         <div>
           <h3 class="card__title">Comment Breakdown</h3>
-          <p class="card__subtitle">Per-message scoring &amp; signal tags</p>
+          <p class="card__subtitle">Per-message score, emotion &amp; reasoning</p>
         </div>
       </div>
       <div class="breakdown" id="breakdownList"></div>
@@ -179,28 +331,32 @@
     <div class="how">
       <div class="how__item glass">
         <div class="how__num">01</div>
-        <h4>Lexicon Signals</h4>
-        <p>Severe toxic terms, profanity, aggression and negative sentiment are weighted across each comment.</p>
+        <h4>Multilingual Lexicon</h4>
+        <p>Severe abuse, profanity, attacks and insults across English, Hindi, Hinglish and Roman Hindi are weighted by intensity tier.</p>
       </div>
       <div class="how__item glass">
         <div class="how__num">02</div>
-        <h4>Drift Detection</h4>
-        <p>Earlier comments are compared against later ones to surface escalating, calming, or stable trends.</p>
+        <h4>Context Aware</h4>
+        <p>Phrase patterns like "X level funny", emojis and questions de-weight playful tone, while "tu X hai" patterns escalate.</p>
       </div>
       <div class="how__item glass">
         <div class="how__num">03</div>
-        <h4>Risk Classification</h4>
-        <p>A blended score maps the user into LOW, MEDIUM or HIGH and recommends an action for moderators.</p>
+        <h4>Drift Detection</h4>
+        <p>Earlier vs later comments are compared to label conversations as Stable, Slowly Negative, Rapid Escalation or Recovery.</p>
+      </div>
+      <div class="how__item glass">
+        <div class="how__num">04</div>
+        <h4>Optional Gemini</h4>
+        <p>If a Gemini API key is added, the engine blends Google Gemini scoring with the local model for sharper context calls.</p>
       </div>
     </div>
   </section>
 
   <footer class="footer">
     <div>Built for Hackathon | AI for Safer Communities</div>
-    <div class="footer__sub">ToxiTrack AI &middot; Behavioral Drift Engine</div>
+    <div class="footer__sub">ToxiTrack AI · Multilingual Behavioral Drift Engine v2.0</div>
   </footer>
 
-  <!-- Toast container -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
