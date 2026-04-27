@@ -1177,10 +1177,8 @@ def analyze_with_gemini(comments, api_key=None):
         data = json.loads(text)
         if isinstance(data, dict) and isinstance(data.get("comments"), list):
             return data
-        except Exception as e:
-        print("Gemini Error:", e)
+        except Exception :
         return None
-    
     return None
 
 
