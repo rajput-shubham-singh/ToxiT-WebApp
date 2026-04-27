@@ -153,6 +153,9 @@ EN_BULLYING = {
     "great job ruining everything",
     "wow genius",
     "what else can we expect from you",
+    "trash person",
+    "disgusting behavior",
+    "waste of time",
 }
 
 # --- HINDI / HINGLISH / ROMAN HINDI ---
@@ -167,6 +170,15 @@ HI_ABUSIVE_TIER_S = {
     "bhosdike",
     "bhosadike",
     "bhosdiwale",
+}
+
+# Subset of EN_HATE that is *unambiguously* extreme (suicide/violence) and
+# should auto-floor to CRITICAL. Other EN_HATE entries like "nobody likes you"
+# or "get lost" are humiliation/bullying — they still count toward toxicity
+# via the bullying weights but no longer trigger the Critical hard floor.
+EN_HATE_SEVERE = {
+    "kill yourself",
+    "go die",
 }
 
 HI_ABUSIVE_SEVERE = {
@@ -585,7 +597,16 @@ def score_single_comment(
     en_profanity = count_phrases(text_lower, EN_PROFANITY)
     en_aggressive = count_phrases(text_lower, EN_AGGRESSIVE)
     en_hate = count_phrases(text_lower, EN_HATE)
+    en_hate_severe = count_phrases(text_lower, EN_HATE_SEVERE)
     en_bullying = count_phrases(text_lower, EN_BULLYING)
+
+    # De-overlap: bullying phrases like "you are useless" / "pathetic
+    # performance" / "trash person" already contain an EN_SEVERE word
+    # ("useless", "pathetic", "trash"). Counting both double-charges the
+    # same offense and pushes single lines into CRITICAL. Strip the overlap
+    # from en_severe so the bullying weight is the dominant signal.
+    if en_bullying >= 1 and en_severe >= 1:
+        en_severe = max(0, en_severe - en_bullying)
 
     hi_abusive = count_phrases(text_lower, HI_ABUSIVE_SEVERE)
     hi_severe = count_phrases(text_lower, HI_INSULT_SEVERE)
@@ -666,6 +687,14 @@ def score_single_comment(
     if hi_abusive >= 1 and attack_hits >= 1 and severe_count >= 2:
         combo_boost = max(combo_boost, 28)
 
+    # Formal/workplace toxic phrases ("you should be fired", "pathetic
+    # performance", "no one likes you", ...) are inherently humiliating, so
+    # they get a stronger base weight, plus a small additional combo bonus
+    # when they are pointed at someone via "you/your/tu/tum".
+    formal_target_boost = 0
+    if en_bullying >= 1 and has_targeting:
+        formal_target_boost = 6 + (en_bullying - 1) * 4  # 6..N
+
     raw = (
         hi_abusive * 30
         + hi_severe * 22
@@ -675,7 +704,8 @@ def score_single_comment(
         + en_profanity * 14
         + en_aggressive * 12
         + en_hate * 30
-        + en_bullying * 18
+        + en_bullying * 26
+        + formal_target_boost
         + attack_hits * 14
         + threat_hits * 26
         + bully_hits * 16
@@ -707,7 +737,10 @@ def score_single_comment(
         score = max(score, 55)
     if severe_count >= 3:
         score = max(score, 80)  # multi-word abusive pile-on
-    if en_hate >= 1:
+    if en_hate_severe >= 1:
+        # Only suicide/violence-class hate ("kill yourself", "go die") auto-floors
+        # to CRITICAL. Other EN_HATE phrases ("nobody likes you", "get lost")
+        # are humiliation -- they should land in HIGH via raw scoring, not auto-Critical.
         score = max(score, 70)
     score = min(100, score)
 
@@ -964,6 +997,16 @@ def analyze_history(
 
     scores = [b["score"] for b in breakdown]
     toxicity_score = int(sum(scores) / len(scores))
+
+    # Aggregate boost: when 2+ messages each carry a formal/workplace toxic
+    # phrase ("you should be fired", "pathetic performance", "no one likes you",
+    # ...), the conversation is a sustained pile-on, not a one-off line.
+    bullying_msg_count = sum(
+        1 for b in breakdown if b.get("signals", {}).get("bullying", 0) >= 1
+    )
+    if bullying_msg_count >= 2:
+        bump = min(15, 6 + (bullying_msg_count - 2) * 4)  # +6..+15
+        toxicity_score = min(100, toxicity_score + bump)
 
     drift_score = 0
     drift_type = "Stable"
