@@ -37,6 +37,9 @@ The app runs via gunicorn using the virtual environment at `.pythonlibs/`:
 ## Recent Changes
 
 - 2026-04-27: Migrated to Replit. Removed hardcoded Gemini API key from `main.py` (now read from `GEMINI_API_KEY` env var only). Fixed a syntax error in `analyze_with_gemini`. Installed Python deps (flask, flask-sqlalchemy, gunicorn, psycopg2-binary, email-validator, google-generativeai) and confirmed the gunicorn workflow boots on port 5000.
+- 2026-04-27: Gemini mode now uses Gemini's response directly (no 40/60 blend) when the toggle is on and a key is set; silent fallback to Local AI on failure.
+- 2026-04-27: Final-label bands tuned to spec (0-10 Safe / 11-24 Low / 25-44 Mod / 45-69 High / 70-100 Critical). Added `HI_ABUSIVE_TIER_S` (madarchod-class) so only the most extreme abusives auto-floor to Critical; other severe abusives directed at a person floor to High instead. Expanded `EN_BULLYING`, `HI_AGGRESSIVE`, `THREAT_MARKERS`, `PASSIVE_AGG_PATTERNS` with workplace/relationship/sarcasm phrases. Bullying phrases now trigger the targeting amplifier so "You should be fired" / "No one likes you" surface above LOW. All 17 judge tests pass.
+- 2026-04-27: Main "Demo" button cycles through 5 judge-spec sets (Safe → Mild → Formal → Threat → Escalation). Hinglish demo button kept. Footer now shows "Designed by Team Techvengers".
 
 ## Features
 

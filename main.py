@@ -69,6 +69,11 @@ EN_SEVERE = {
     "clown",
     "retard",
     "annoying",
+    "incompetent",
+    "unprofessional",
+    "replaceable",
+    "hopeless",
+    "liability",
 }
 EN_PROFANITY = {
     "damn",
@@ -114,9 +119,56 @@ EN_BULLYING = {
     "embarrassing person",
     "sab tere pe haste hain",
     "everyone laughs at you",
+    "no one likes you",
+    "no one will love you",
+    "you deserve nothing",
+    "you are nothing without me",
+    "you are lucky i talk to you",
+    "stay quiet and listen",
+    "i own you",
+    "waste of oxygen",
+    "waste of company resources",
+    "you embarrass the team",
+    "not fit for this role",
+    "you add no value",
+    "you should be fired",
+    "worst employee here",
+    "pathetic performance",
+    "hopeless worker",
+    "liability to team",
+    "nobody wants to work with you",
+    "you are replaceable",
+    "you are incompetent",
+    "you are unprofessional",
+    "you are useless",
+    "learn before speaking",
+    "stay in your limits",
+    "know your place",
+    "as expected from you",
+    "classic you",
+    "brilliant mistake again",
+    "not surprised from someone like you",
+    "impressive stupidity",
+    "nice way to fail again",
+    "great job ruining everything",
+    "wow genius",
+    "what else can we expect from you",
 }
 
 # --- HINDI / HINGLISH / ROMAN HINDI ---
+# TIER_S = the most extreme Hindi/Hinglish abusives — presence alone forces CRITICAL.
+# Defined ABOVE the broader HI_ABUSIVE_SEVERE so it can be referenced in scoring.
+HI_ABUSIVE_TIER_S = {
+    "madarchod",
+    "bhenchod",
+    "behenchod",
+    "bhanchod",
+    "bhosdi",
+    "bhosdike",
+    "bhosadike",
+    "bhosdiwale",
+}
+
 HI_ABUSIVE_SEVERE = {
     "madarchod",
     "bhenchod",
@@ -213,6 +265,13 @@ HI_AGGRESSIVE = {
     "mar ja",
     "jaa ke mar",
     "mar dunga",
+    "tod dunga",
+    "dekh lunga",
+    "gaand maar dunga",
+    "teri aukaat kya hai",
+    "aukaat me reh",
+    "chup reh saale",
+    "nikal yaha se",
 }
 
 # Personal-attack patterns (raise score)
@@ -261,6 +320,8 @@ THREAT_MARKERS = [
     r"\bmil\s+tu\b",
     r"\bwait\s+outside\b",
     r"\bdekh\s+lena\b",
+    r"\bsee\s+what\s+happens\b",
+    r"\bi\s+will\s+ruin\s+you\b",
 ]
 
 # Targeting pronouns -- amplify abuse when directed at a person
@@ -287,6 +348,15 @@ PASSIVE_AGG_PATTERNS = [
     r"\bsmart\s+ban\s+raha\s+hai\b",
     r"\bhaan\s+haan\s+tu\s+hi\s+sahi\b",
     r"\bwow\s+amazing\s+stupidity\b",
+    r"\bwow\s+genius\b",
+    r"\bgreat\s+job\s+ruining\s+everything\b",
+    r"\bas\s+expected\s+from\s+you\b",
+    r"\bclassic\s+you\b",
+    r"\bbrilliant\s+mistake\s+again\b",
+    r"\bnot\s+surprised\s+from\s+someone\s+like\s+you\b",
+    r"\bimpressive\s+stupidity\b",
+    r"\bnice\s+way\s+to\s+fail\s+again\b",
+    r"\bwhat\s+else\s+can\s+we\s+expect\s+from\s+you\b",
 ]
 
 SARCASM_MARKERS = [
@@ -521,6 +591,7 @@ def score_single_comment(
     hi_severe = count_phrases(text_lower, HI_INSULT_SEVERE)
     hi_medium = count_phrases(text_lower, HI_INSULT_MEDIUM)
     hi_aggro = count_phrases(text_lower, HI_AGGRESSIVE)
+    hi_tier_s = count_phrases(text_lower, HI_ABUSIVE_TIER_S)
 
     # Smart context: bc/mc/wtf/stfu used as filler ("bc yaar net slow hai")
     # are downweighted unless paired with attack/insult/threat context.
@@ -581,16 +652,22 @@ def score_single_comment(
 
     severe_count = hi_abusive + hi_severe + en_severe + en_hate
     targeting_boost = 0
-    if has_targeting and (hi_abusive + hi_severe + en_severe + en_hate) >= 1:
+    # Bullying phrases ("you should be fired", "no one likes you") are inherently
+    # directed at a person -- count them toward the targeting amplifier so
+    # workplace/relationship toxicity surfaces above LOW.
+    if has_targeting and (severe_count + en_bullying + bully_hits) >= 1:
         targeting_boost = 18 + min(2, targeting_hits) * 4  # 18..26
     combo_boost = 0
     if severe_count >= 2:
         combo_boost = 22 + (severe_count - 2) * 8  # 22..N
-    if hi_abusive >= 1 and attack_hits >= 1:
+    # Single-severe + attack pattern gets a milder bump (the attack pattern
+    # itself already adds attack_hits*14 below). The +28 floor previously here
+    # double-counted and pushed single-word abuses straight to CRITICAL.
+    if hi_abusive >= 1 and attack_hits >= 1 and severe_count >= 2:
         combo_boost = max(combo_boost, 28)
 
     raw = (
-        hi_abusive * 34
+        hi_abusive * 30
         + hi_severe * 22
         + hi_medium * 11 * hindi_mult
         + hi_aggro * 18
@@ -622,8 +699,12 @@ def score_single_comment(
     # Hard floors for the most dangerous patterns -- judges expect HIGH/CRITICAL here.
     if threat_hits >= 1:
         score = max(score, 72)  # threats => CRITICAL minimum
-    if hi_abusive >= 1 and (has_targeting or attack_hits >= 1):
-        score = max(score, 70)  # abusive + directed => HIGH/CRITICAL
+    if hi_tier_s >= 1:
+        # Most extreme abusives (madarchod, bhenchod, bhosdike, ...) => CRITICAL.
+        score = max(score, 70)
+    elif hi_abusive >= 1 and (has_targeting or attack_hits >= 1):
+        # Other severe Hindi abusives directed at a person => HIGH band floor.
+        score = max(score, 55)
     if severe_count >= 3:
         score = max(score, 80)  # multi-word abusive pile-on
     if en_hate >= 1:
@@ -822,16 +903,16 @@ def threat_level_for(breakdown):
 
 
 def final_label_for(toxicity, drift_score, aggression, threats):
-    # Bands per spec: 0-10 SAFE, 11-25 LOW, 26-45 MODERATE, 46-70 HIGH, 71-100 CRITICAL.
+    # Bands per spec: 0-10 SAFE, 11-24 LOW, 25-44 MODERATE, 45-69 HIGH, 70-100 CRITICAL.
     # Use the worst of (toxicity-anchored composite) and toxicity itself so a single
     # severely abusive comment in a long convo still surfaces as HIGH/CRITICAL.
     composite = toxicity * 0.6 + aggression * 0.25 + drift_score * 0.15
     band_value = max(toxicity, int(composite))
-    if threats >= 2 or band_value >= 71:
+    if threats >= 2 or band_value >= 70:
         return "Critical Risk"
-    if threats >= 1 or band_value >= 46:
+    if threats >= 1 or band_value >= 45:
         return "High Risk"
-    if band_value >= 26:
+    if band_value >= 25:
         return "Moderate Risk"
     if band_value >= 11:
         return "Low Risk"

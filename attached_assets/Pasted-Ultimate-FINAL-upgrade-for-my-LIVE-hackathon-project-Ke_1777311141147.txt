@@ -1,0 +1,261 @@
+Ultimate FINAL upgrade for my LIVE hackathon project. Keep deployment safe, keep Flask structure same, keep all current routes/files working. Use efficient edits only.
+
+CRITICAL RULE:
+Do NOT remove anything old.
+Do NOT delete old toxicity words.
+Do NOT delete old Hindi/Hinglish keyword lists.
+Do NOT remove old scoring logic.
+Do NOT remove old demo button/features.
+Do NOT remove current UI theme.
+Keep everything existing and only IMPROVE / EXPAND / POLISH.
+
+==================================================
+MAIN GOAL
+==================================================
+
+Make Local AI extremely strong and realistic because judges may test random abusive slang, Hinglish insults, formal harassment, office toxicity, passive aggression, sarcasm, threats, bullying, toxic relationship phrases, rude comments, disrespectful language.
+
+Gemini optional rahe.
+If Gemini fails silently use Local AI.
+
+==================================================
+1. PRESERVE + EXPAND TOXICITY DATA
+==================================================
+
+Keep all old words and phrases.
+
+ADD more weighted words with spelling variants:
+
+HIGH / CRITICAL Hindi Hinglish:
+madarchod, bhenchod, behenchod, mc, bc, bsdk, chutiya, chutiya, gandu, gaandu, harami, kutta, kamina, randi, saale, sale, bakchod, lode, lavde, teri aukaat kya hai, aukaat me reh, chup reh saale, nikal yaha se, dekh lunga, mar dunga, tod dunga, gaand maar dunga
+
+English abuse:
+idiot, stupid, dumb, moron, loser, bastard, clown, trash, pathetic, useless, worthless, garbage, shut up, hate you, nobody likes you, waste of oxygen
+
+Formal / workplace toxic:
+you are incompetent
+you are unprofessional
+you are useless
+you should be fired
+you add no value
+worst employee here
+you embarrass the team
+not fit for this role
+learn before speaking
+stay in your limits
+know your place
+waste of company resources
+pathetic performance
+hopeless worker
+liability to team
+nobody wants to work with you
+you are replaceable
+
+Passive aggressive / sarcasm:
+wow genius
+great job ruining everything
+as expected from you
+classic you
+brilliant mistake again
+not surprised from someone like you
+impressive stupidity
+nice way to fail again
+what else can we expect from you
+
+Relationship toxic:
+no one will love you
+you deserve nothing
+you are nothing without me
+i own you
+stay quiet and listen
+you are lucky i talk to you
+
+Threat:
+kill you
+beat you
+destroy you
+i will ruin you
+mar dunga
+dekh lunga
+ghar aa ja
+tod dunga
+see what happens
+
+==================================================
+2. SMART CONTEXT ENGINE
+==================================================
+
+If target words appear:
+tu, tera, tere, tujhe, tum, tujhse, you, your, he, she
+
+boost toxicity.
+
+If multiple toxic words in same line:
+strong combo boost.
+
+If repeated toxic messages:
+increase final risk.
+
+If ALL CAPS:
+increase aggression.
+
+If repeated !!! ???:
+increase aggression.
+
+Threat phrases:
+minimum HIGH / CRITICAL.
+
+If chat becomes worse over time:
+increase Drift + Escalation Chance.
+
+==================================================
+3. FALSE POSITIVE CONTROL
+==================================================
+
+Do NOT over-score harmless lines:
+
+bc net slow hai
+crazy match today
+stupid bug in code
+yaar pagal weather hai
+mad crazy game bro
+
+Use context before scoring.
+
+==================================================
+4. FINAL LABELS
+==================================================
+
+0-10 SAFE
+11-24 LOW RISK
+25-44 MODERATE
+45-69 HIGH RISK
+70-100 CRITICAL
+
+Threat phrases can directly push HIGH/CRITICAL.
+
+==================================================
+5. PREMIUM TOXICITY METER
+==================================================
+
+Improve meter visually:
+
+Animated futuristic meter
+Neon gradient
+Green Safe
+Yellow Moderate
+Orange High
+Red Critical
+Pulse effect on critical
+
+Scores should look premium and convincing.
+
+==================================================
+6. RESULTS PANEL
+==================================================
+
+Beautifully show:
+
+Toxicity Score
+Aggression
+Threat Level
+Conversation Health
+Drift
+Escalation Chance
+Final Risk
+Engine Used
+
+==================================================
+7. DEMO BUTTON UPGRADE
+==================================================
+
+Keep old Demo button.
+Do NOT remove.
+
+Use only one Demo button.
+Each click cycles / random loads different sets:
+
+Demo 1 Safe:
+Hello bro how are you
+Nice work team
+
+Demo 2 Mild Toxic:
+Tu pagal hai kya
+Bakwas band kar
+
+Demo 3 Formal Toxic:
+You are useless
+Pathetic performance
+
+Demo 4 Threat:
+Mar dunga tujhe
+Dekh lunga
+
+Demo 5 Escalation:
+Hello
+Chup reh
+Saale chup reh
+Dekh lunga tujhe
+
+==================================================
+8. FUTURISTIC UI UPGRADE
+==================================================
+
+Keep current dark futuristic theme.
+Only improve:
+
+animated particle background
+glassmorphism cards
+neon glowing borders
+gradient headings
+premium buttons
+smooth hover effects
+better charts
+AI scanning loading animation
+clean spacing
+strong shadows
+responsive mobile
+cyberpunk premium vibe
+
+==================================================
+9. FOOTER
+==================================================
+
+Elegant glowing footer:
+
+Designed by Team Techvengers
+
+==================================================
+10. GEMINI
+==================================================
+
+Keep optional.
+If Gemini successful show Gemini AI.
+Else Local AI silently.
+
+==================================================
+11. MUST PASS JUDGE TESTS
+==================================================
+
+Hello bro => SAFE
+Tu pagal hai kya => LOW/MODERATE
+Tu chutiya hai => HIGH
+Tu chutiya hai saale => HIGH
+Madarchod chup reh => CRITICAL
+You are useless => MODERATE/HIGH
+You should be fired => HIGH
+Great job ruining everything => MODERATE
+No one likes you => HIGH
+Mar dunga tujhe => CRITICAL
+Hello > Chup reh > Saale chup reh > Dekh lunga => High Drift
+
+==================================================
+12. IMPORTANT
+==================================================
+
+Do not break live deployment.
+Do not slow startup.
+Use efficient code only.
+Keep all old logic + old words + old features.
+Only enhance system.
+Return final best polished working version.

@@ -17,6 +17,16 @@ const DEMO_HI = [
   "tu chutiya hai, dimag kharab hai tera"
 ];
 
+// Cycling demo sets for the main "Demo" button (judge-friendly spectrum).
+const DEMO_CYCLE = [
+  { name: "Safe",          rows: ["Hello bro how are you", "Nice work team"] },
+  { name: "Mild Toxic",    rows: ["Tu pagal hai kya", "Bakwas band kar"] },
+  { name: "Formal Toxic",  rows: ["You are useless", "Pathetic performance"] },
+  { name: "Threat",        rows: ["Mar dunga tujhe", "Dekh lunga"] },
+  { name: "Escalation",    rows: ["Hello", "Chup reh", "Saale chup reh", "Dekh lunga tujhe"] },
+];
+let demoCycleIdx = 0;
+
 const DEMO_CHAT_SAFE = [
   { user: "User1", text: "hello bhai" },
   { user: "User2", text: "hi, kaisa hai" },
@@ -599,6 +609,13 @@ async function analyzeChat() {
 // ===== Demo loaders / reset (single) =====
 function loadDemoEN() { els.textarea.value = DEMO_EN.join("\n"); updateCount(); showToast("English demo loaded."); }
 function loadDemoHI() { els.textarea.value = DEMO_HI.join("\n"); updateCount(); showToast("Hinglish demo loaded."); }
+function loadDemoCycle() {
+  const set = DEMO_CYCLE[demoCycleIdx % DEMO_CYCLE.length];
+  els.textarea.value = set.rows.join("\n");
+  updateCount();
+  showToast(`Demo ${demoCycleIdx + 1}/${DEMO_CYCLE.length}: ${set.name} loaded.`);
+  demoCycleIdx = (demoCycleIdx + 1) % DEMO_CYCLE.length;
+}
 function reset() {
   els.textarea.value = ""; updateCount();
   els.dashboard.classList.add("hidden");
@@ -682,7 +699,8 @@ function exportReport() {
 // ===== Wire up =====
 els.textarea.addEventListener("input", updateCount);
 els.analyzeBtn.addEventListener("click", analyze);
-els.demoBtn.addEventListener("click", loadDemoEN);
+// Main "Demo" button now cycles through 5 judge-spec sets (Safe → Mild → Formal → Threat → Escalation).
+els.demoBtn.addEventListener("click", loadDemoCycle);
 els.demoHiBtn.addEventListener("click", loadDemoHI);
 els.resetBtn.addEventListener("click", reset);
 els.textarea.addEventListener("keydown", (e) => {
