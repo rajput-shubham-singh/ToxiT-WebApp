@@ -16,6 +16,7 @@ from flask import Flask, render_template, request, jsonify
 
 try:
     import google.generativeai as genai
+
     _GEMINI_AVAILABLE = True
 except Exception:
     _GEMINI_AVAILABLE = False
@@ -32,54 +33,176 @@ GEMINI_API_KEY = "AIzaSyAllYZnvjO6zmL4r9SxYTWWbm5dCCycAKo"
 
 # --- ENGLISH ---
 EN_SEVERE = {
-    "idiot", "stupid", "dumb", "moron", "dumbass", "loser", "trash", "garbage",
-    "pathetic", "worthless", "scum", "freak", "useless", "shameful",
-    "disgusting", "horrible", "nasty", "asshole", "bastard", "jerk",
-    "fool", "ugly", "fraud", "clown", "retard", "annoying",
+    "idiot",
+    "stupid",
+    "dumb",
+    "moron",
+    "dumbass",
+    "loser",
+    "trash",
+    "garbage",
+    "pathetic",
+    "worthless",
+    "scum",
+    "freak",
+    "useless",
+    "shameful",
+    "disgusting",
+    "horrible",
+    "nasty",
+    "asshole",
+    "bastard",
+    "jerk",
+    "fool",
+    "ugly",
+    "fraud",
+    "clown",
+    "retard",
+    "annoying",
 }
 EN_PROFANITY = {
-    "damn", "hell", "crap", "shut up", "screw you", "piss off",
-    "fuck", "shit", "bitch", "fucking", "motherfucker",
+    "damn",
+    "hell",
+    "crap",
+    "shut up",
+    "screw you",
+    "piss off",
+    "fuck",
+    "shit",
+    "bitch",
+    "fucking",
+    "motherfucker",
 }
 EN_AGGRESSIVE = {
-    "hate", "kill", "destroy", "fight", "die", "attack",
-    "threat", "punch", "smash", "ruin", "burn",
+    "hate",
+    "kill",
+    "destroy",
+    "fight",
+    "die",
+    "attack",
+    "threat",
+    "punch",
+    "smash",
+    "ruin",
+    "burn",
 }
 EN_HATE = {
-    "kill yourself", "go die", "nobody likes you", "hate you",
-    "you are nothing", "piece of trash", "get lost",
+    "kill yourself",
+    "go die",
+    "nobody likes you",
+    "hate you",
+    "you are nothing",
+    "piece of trash",
+    "get lost",
 }
 EN_BULLYING = {
-    "nobody wants you", "tu unwanted", "you are unwanted",
-    "cry more", "attention seeker", "embarrassing person",
-    "sab tere pe haste hain", "everyone laughs at you",
+    "nobody wants you",
+    "tu unwanted",
+    "you are unwanted",
+    "cry more",
+    "attention seeker",
+    "embarrassing person",
+    "sab tere pe haste hain",
+    "everyone laughs at you",
 }
 
 # --- HINDI / HINGLISH / ROMAN HINDI ---
 HI_ABUSIVE_SEVERE = {
-    "madarchod", "bhenchod", "behenchod", "bhanchod", "chutiya",
-    "chutiye", "chutiyaa", "chutya", "lodu", "lawde", "lavde",
-    "lund", "land", "gaand", "gandu", "gaandu", "randi", "raand",
-    "bhosdi", "bhosdike", "bhosadike", "bhosdiwale",
-    "bsdk", "mkc", "bkl", "bc", "mc", "wtf", "stfu",
-    "jhant", "jhantu", "jhatu",
+    "madarchod",
+    "bhenchod",
+    "behenchod",
+    "bhanchod",
+    "chutiya",
+    "chutiye",
+    "chutiyaa",
+    "chutya",
+    "lodu",
+    "lawde",
+    "lavde",
+    "lund",
+    "land",
+    "gaand",
+    "gandu",
+    "gaandu",
+    "randi",
+    "raand",
+    "bhosdi",
+    "bhosdike",
+    "bhosadike",
+    "bhosdiwale",
+    "bsdk",
+    "mkc",
+    "bkl",
+    "bc",
+    "mc",
+    "wtf",
+    "stfu",
+    "jhant",
+    "jhantu",
+    "jhatu",
 }
 HI_INSULT_SEVERE = {
-    "harami", "haraami", "kutte", "kutta", "kutti", "sale", "saala",
-    "saale", "kameena", "kamina", "kameene", "kaminey",
-    "ghatiya", "ghattiya", "bakchod", "bakchodi", "chapri",
+    "harami",
+    "haraami",
+    "kutte",
+    "kutta",
+    "kutti",
+    "sale",
+    "saala",
+    "saale",
+    "kameena",
+    "kamina",
+    "kameene",
+    "kaminey",
+    "ghatiya",
+    "ghattiya",
+    "bakchod",
+    "bakchodi",
+    "chapri",
 }
 HI_INSULT_MEDIUM = {
-    "pagal", "paagal", "bewakoof", "bewakuf", "bevakoof", "gadha",
-    "gadhe", "ulloo", "ullu", "nikamma", "nalayak", "nalaayak",
-    "bakwas", "faltu", "faaltu", "bekar", "bekaar", "ghamandi",
-    "ghissu", "lallu", "lalu", "dhakkan", "tharki", "tharak",
-    "neech", "ganda",
+    "pagal",
+    "paagal",
+    "bewakoof",
+    "bewakuf",
+    "bevakoof",
+    "gadha",
+    "gadhe",
+    "ulloo",
+    "ullu",
+    "nikamma",
+    "nalayak",
+    "nalaayak",
+    "bakwas",
+    "faltu",
+    "faaltu",
+    "bekar",
+    "bekaar",
+    "ghamandi",
+    "ghissu",
+    "lallu",
+    "lalu",
+    "dhakkan",
+    "tharki",
+    "tharak",
+    "neech",
+    "ganda",
 }
 HI_AGGRESSIVE = {
-    "maar", "maarunga", "marunga", "marungi", "peetunga", "peetungi",
-    "thoko", "todunga", "phod dunga", "phodunga", "phorenge",
-    "mar ja", "jaa ke mar", "mar dunga",
+    "maar",
+    "maarunga",
+    "marunga",
+    "marungi",
+    "peetunga",
+    "peetungi",
+    "thoko",
+    "todunga",
+    "phod dunga",
+    "phodunga",
+    "phorenge",
+    "mar ja",
+    "jaa ke mar",
+    "mar dunga",
 }
 
 # Personal-attack patterns (raise score)
@@ -104,17 +227,24 @@ HI_ATTACK_PATTERNS = [
 # Threat patterns
 THREAT_MARKERS = [
     r"\bi\s+will\s+(kill|destroy|hurt|find)\b",
-    r"\bkill\s+you\b", r"\bkill\s+u\b",
-    r"\bmaar\s+dunga\b", r"\bmaar\s+dungi\b",
+    r"\bkill\s+you\b",
+    r"\bkill\s+u\b",
+    r"\bmaar\s+dunga\b",
+    r"\bmaar\s+dungi\b",
     r"\bjaan\s+le\s+lunga\b",
-    r"\bdekh\s+lunga\b", r"\bdekh\s+lungi\b",
+    r"\bdekh\s+lunga\b",
+    r"\bdekh\s+lungi\b",
     r"\bdekhta\s+hu\s+tujhe\b",
-    r"\btu\s+gaya\b", r"\bteri\s+to\b",
+    r"\btu\s+gaya\b",
+    r"\bteri\s+to\b",
     r"\bteri\s+watt\s+laga\s+dunga\b",
-    r"\btod\s+dunga\b", r"\btod\s+dungi\b",
+    r"\btod\s+dunga\b",
+    r"\btod\s+dungi\b",
     r"\bpit\s+dunga\b",
-    r"\bghar\s+aa\b", r"\bmil\s+tu\b",
-    r"\bwait\s+outside\b", r"\bdekh\s+lena\b",
+    r"\bghar\s+aa\b",
+    r"\bmil\s+tu\b",
+    r"\bwait\s+outside\b",
+    r"\bdekh\s+lena\b",
 ]
 
 # Passive-aggressive / sarcasm patterns
@@ -129,10 +259,15 @@ PASSIVE_AGG_PATTERNS = [
 ]
 
 SARCASM_MARKERS = [
-    r"\bwow\s+great\b", r"\boh\s+really\b",
-    r"\bso\s+smart\b", r"\bkitna\s+intelligent\b",
-    r"\bhaan\s+haan\b", r"\bjaroor\b.*\?", r"\bzaroor\b.*\?",
-    r"/s$", r"\\\\s$",
+    r"\bwow\s+great\b",
+    r"\boh\s+really\b",
+    r"\bso\s+smart\b",
+    r"\bkitna\s+intelligent\b",
+    r"\bhaan\s+haan\b",
+    r"\bjaroor\b.*\?",
+    r"\bzaroor\b.*\?",
+    r"/s$",
+    r"\\\\s$",
 ]
 
 # Bullying / humiliation patterns
@@ -146,35 +281,82 @@ BULLY_PATTERNS = [
 
 # Apology / de-escalation markers (downweight conflict)
 APOLOGY_MARKERS = [
-    r"\bsorry\b", r"\bmaaf\s+(kar|karo|karna)\b",
+    r"\bsorry\b",
+    r"\bmaaf\s+(kar|karo|karna)\b",
     r"\bmera\s+(matlab|intent)\b",
-    r"\bgussa\s+tha\b", r"\bcalm\s+down\b",
-    r"\bshanti\b", r"\bbhul\s+ja\b",
-    r"\bmy\s+bad\b", r"\bapologi[zs]e\b",
+    r"\bgussa\s+tha\b",
+    r"\bcalm\s+down\b",
+    r"\bshanti\b",
+    r"\bbhul\s+ja\b",
+    r"\bmy\s+bad\b",
+    r"\bapologi[zs]e\b",
 ]
 
 # Playful / positive offsets
 PLAYFUL_PATTERNS = [
     r"\b\w+\s+level\s+(funny|cool|awesome|amazing|hilarious|mast|great|epic)\b",
-    r"\bhaha+\b", r"\blol\b", r"\blmao\b", r"\brofl\b",
-    r"\bkya\s+baat\b", r"\bwah+\b", r"\bshabaash\b", r"\bshabash\b",
-    r"\bmast\b", r"\bzabardast\b", r"\bbahut\s+accha\b",
-    r"\bbahut\s+badhiya\b", r"\bbadhiya\b",
-    r"\bjokingly\b", r"\bjk\b", r"\bjust\s+kidding\b",
+    r"\bhaha+\b",
+    r"\blol\b",
+    r"\blmao\b",
+    r"\brofl\b",
+    r"\bkya\s+baat\b",
+    r"\bwah+\b",
+    r"\bshabaash\b",
+    r"\bshabash\b",
+    r"\bmast\b",
+    r"\bzabardast\b",
+    r"\bbahut\s+accha\b",
+    r"\bbahut\s+badhiya\b",
+    r"\bbadhiya\b",
+    r"\bjokingly\b",
+    r"\bjk\b",
+    r"\bjust\s+kidding\b",
 ]
 
 POSITIVE = {
-    "good", "great", "love", "nice", "awesome", "amazing", "cool",
-    "wonderful", "fantastic", "excellent", "thanks", "thank you",
-    "appreciate", "kind", "happy", "best", "brilliant", "lovely",
-    "respect", "agree", "supportive", "helpful",
-    "accha", "achha", "achcha", "badhiya", "mast", "shandaar",
-    "shabaash", "shabash", "wah", "zabardast", "kamaal", "pyaara",
-    "pyara", "dhanyavaad", "shukriya",
+    "good",
+    "great",
+    "love",
+    "nice",
+    "awesome",
+    "amazing",
+    "cool",
+    "wonderful",
+    "fantastic",
+    "excellent",
+    "thanks",
+    "thank you",
+    "appreciate",
+    "kind",
+    "happy",
+    "best",
+    "brilliant",
+    "lovely",
+    "respect",
+    "agree",
+    "supportive",
+    "helpful",
+    "accha",
+    "achha",
+    "achcha",
+    "badhiya",
+    "mast",
+    "shandaar",
+    "shabaash",
+    "shabash",
+    "wah",
+    "zabardast",
+    "kamaal",
+    "pyaara",
+    "pyara",
+    "dhanyavaad",
+    "shukriya",
 }
 
 QUESTION_TONE = [
-    r"\?\s*$", r"\bkya\b\s+\w+\s+(hai|ho)\s*\?", r"\bho\s+kya\b",
+    r"\?\s*$",
+    r"\bkya\b\s+\w+\s+(hai|ho)\s*\?",
+    r"\bho\s+kya\b",
 ]
 
 
@@ -207,15 +389,15 @@ REWRITE_MAP = {
 }
 
 SAFE_REPLY_BANK = {
-    "anger":      "Take a breath - let's keep the conversation respectful.",
-    "sarcasm":    "I want to make sure I'm reading you right - can you clarify?",
-    "mockery":    "Let's discuss this without targeting anyone personally.",
-    "bullying":   "Everyone here deserves to feel safe. Let's reset the tone.",
-    "threat":     "Threats aren't acceptable - this conversation will be reviewed.",
-    "hate":       "Let's keep the discussion focused on ideas, not attacks.",
-    "frustration":"I hear you - what's the underlying concern?",
-    "playful":    "Glad you're enjoying it!",
-    "neutral":    "Thanks for sharing your thoughts.",
+    "anger": "Take a breath - let's keep the conversation respectful.",
+    "sarcasm": "I want to make sure I'm reading you right - can you clarify?",
+    "mockery": "Let's discuss this without targeting anyone personally.",
+    "bullying": "Everyone here deserves to feel safe. Let's reset the tone.",
+    "threat": "Threats aren't acceptable - this conversation will be reviewed.",
+    "hate": "Let's keep the discussion focused on ideas, not attacks.",
+    "frustration": "I hear you - what's the underlying concern?",
+    "playful": "Glad you're enjoying it!",
+    "neutral": "Thanks for sharing your thoughts.",
 }
 
 
@@ -224,8 +406,15 @@ SAFE_REPLY_BANK = {
 # ============================================================
 
 ALL_TOXIC_WORDS = (
-    HI_ABUSIVE_SEVERE | HI_INSULT_SEVERE | HI_INSULT_MEDIUM | HI_AGGRESSIVE
-    | EN_SEVERE | EN_PROFANITY | EN_AGGRESSIVE | EN_HATE | EN_BULLYING
+    HI_ABUSIVE_SEVERE
+    | HI_INSULT_SEVERE
+    | HI_INSULT_MEDIUM
+    | HI_AGGRESSIVE
+    | EN_SEVERE
+    | EN_PROFANITY
+    | EN_AGGRESSIVE
+    | EN_HATE
+    | EN_BULLYING
 )
 
 
@@ -264,14 +453,14 @@ def find_toxic_words(text: str):
                 i = text_lower.find(wl, start)
                 if i == -1:
                     break
-                snippet = text[i:i + len(wl)]
+                snippet = text[i : i + len(wl)]
                 if snippet.lower() not in seen:
                     found.append(snippet)
                     seen.add(snippet.lower())
                 start = i + len(wl)
         else:
             for m in re.finditer(r"\b" + re.escape(wl) + r"\b", text_lower):
-                snippet = text[m.start():m.end()]
+                snippet = text[m.start() : m.end()]
                 if snippet.lower() not in seen:
                     found.append(snippet)
                     seen.add(snippet.lower())
@@ -282,7 +471,10 @@ def find_toxic_words(text: str):
 # 4. PER-COMMENT SCORING
 # ============================================================
 
-def score_single_comment(comment: str, sensitivity: str = "medium", strict: bool = False):
+
+def score_single_comment(
+    comment: str, sensitivity: str = "medium", strict: bool = False
+):
     text_lower = comment.lower()
     tokens = tokenize(comment)
     word_count = max(1, len(tokens))
@@ -329,7 +521,8 @@ def score_single_comment(comment: str, sensitivity: str = "medium", strict: bool
     emoji_playful = has_emoji(comment)
 
     shout_words = sum(
-        1 for t in tokens
+        1
+        for t in tokens
         if len(t) >= 4 and t.upper() == t and re.match(r"^[a-z']+$", t.lower())
     )
     caps_ratio = shout_words / word_count
@@ -366,13 +559,23 @@ def score_single_comment(comment: str, sensitivity: str = "medium", strict: bool
 
     emotion, intent, reason = classify_emotion_intent(
         score=score,
-        hi_abusive=hi_abusive, hi_severe=hi_severe, hi_medium=hi_medium,
-        en_severe=en_severe, en_profanity=en_profanity, en_hate=en_hate,
-        attack_hits=attack_hits, threat_hits=threat_hits,
-        sarcasm_hits=sarcasm_hits, passive_agg_hits=passive_agg_hits,
-        bully_hits=bully_hits, apology_hits=apology_hits,
-        playful_hits=playful_hits, emoji_playful=emoji_playful,
-        positive=positive, caps_ratio=caps_ratio, excess_exclaim=excess_exclaim,
+        hi_abusive=hi_abusive,
+        hi_severe=hi_severe,
+        hi_medium=hi_medium,
+        en_severe=en_severe,
+        en_profanity=en_profanity,
+        en_hate=en_hate,
+        attack_hits=attack_hits,
+        threat_hits=threat_hits,
+        sarcasm_hits=sarcasm_hits,
+        passive_agg_hits=passive_agg_hits,
+        bully_hits=bully_hits,
+        apology_hits=apology_hits,
+        playful_hits=playful_hits,
+        emoji_playful=emoji_playful,
+        positive=positive,
+        caps_ratio=caps_ratio,
+        excess_exclaim=excess_exclaim,
         aggressive=hi_aggro + en_aggressive,
     )
 
@@ -429,7 +632,9 @@ def classify_emotion_intent(**s):
         return "Angry", "bullying", "Bullying / humiliation pattern detected."
     if apology_hits >= 1 and score < 40:
         return "Calm", "supportive", "Apologetic / de-escalating tone."
-    if (hi_severe + en_severe) >= 2 or (attack_hits >= 1 and (hi_severe + en_severe + s["hi_medium"]) >= 1):
+    if (hi_severe + en_severe) >= 2 or (
+        attack_hits >= 1 and (hi_severe + en_severe + s["hi_medium"]) >= 1
+    ):
         return "Angry", "bullying", "Multiple insults targeting a person."
     if passive_agg_hits >= 1:
         return "Sarcastic", "mockery", "Passive-aggressive tone detected."
@@ -454,6 +659,7 @@ def classify_emotion_intent(**s):
 # 5. REWRITE / SAFE REPLY
 # ============================================================
 
+
 def rewrite_toxic(comment: str) -> str:
     text = comment
     lower = text.lower()
@@ -464,7 +670,9 @@ def rewrite_toxic(comment: str) -> str:
     for w in re.findall(r"\S+|\s+", text):
         bare = re.sub(r"[^\w\u0900-\u097F]", "", w).lower()
         if bare in REWRITE_MAP and " " not in REWRITE_MAP[bare]:
-            new_words.append(w.replace(re.search(r"\w+", w).group(), REWRITE_MAP[bare], 1))
+            new_words.append(
+                w.replace(re.search(r"\w+", w).group(), REWRITE_MAP[bare], 1)
+            )
         else:
             new_words.append(w)
     rewritten = "".join(new_words)
@@ -476,9 +684,14 @@ def rewrite_toxic(comment: str) -> str:
 def safe_reply_for(emotion: str) -> str:
     key = emotion.lower()
     mapping = {
-        "angry": "anger", "threat": "threat", "sarcastic": "sarcasm",
-        "negative": "frustration", "frustrated": "frustration",
-        "playful": "playful", "positive": "neutral", "calm": "neutral",
+        "angry": "anger",
+        "threat": "threat",
+        "sarcastic": "sarcasm",
+        "negative": "frustration",
+        "frustrated": "frustration",
+        "playful": "playful",
+        "positive": "neutral",
+        "calm": "neutral",
         "neutral": "neutral",
     }
     return SAFE_REPLY_BANK.get(mapping.get(key, "neutral"), SAFE_REPLY_BANK["neutral"])
@@ -487,6 +700,7 @@ def safe_reply_for(emotion: str) -> str:
 # ============================================================
 # 6. AGGREGATE METRICS
 # ============================================================
+
 
 def _signal_total(breakdown, key):
     return sum(b["signals"].get(key, 0) for b in breakdown)
@@ -551,14 +765,21 @@ def final_label_for(toxicity, drift_score, aggression, threats):
 # 7. AGGREGATE ANALYSIS
 # ============================================================
 
-def analyze_history(comments, sensitivity="medium", strict=False, use_gemini=False, gemini_key=None):
+
+def analyze_history(
+    comments, sensitivity="medium", strict=False, use_gemini=False, gemini_key=None
+):
     cleaned = [c.strip() for c in comments if c and c.strip()]
     if not cleaned:
         return {"error": "Please enter at least one comment."}
 
     gemini_result = None
     used_engine = "Local AI"
-    effective_key = gemini_key or os.environ.get("GEMINI_API_KEY") or (GEMINI_API_KEY if GEMINI_API_KEY != "PASTE_KEY_HERE" else None)
+    effective_key = (
+        gemini_key
+        or os.environ.get("GEMINI_API_KEY")
+        or (GEMINI_API_KEY if GEMINI_API_KEY != "PASTE_KEY_HERE" else None)
+    )
     if use_gemini and _GEMINI_AVAILABLE and effective_key:
         gemini_result = analyze_with_gemini(cleaned, api_key=effective_key)
         if gemini_result:
@@ -570,7 +791,9 @@ def analyze_history(comments, sensitivity="medium", strict=False, use_gemini=Fal
         for i, item in enumerate(breakdown):
             if i < len(gemini_result.get("comments", [])):
                 g = gemini_result["comments"][i]
-                item["score"] = int(item["score"] * 0.4 + g.get("score", item["score"]) * 0.6)
+                item["score"] = int(
+                    item["score"] * 0.4 + g.get("score", item["score"]) * 0.6
+                )
                 item["emotion"] = g.get("emotion", item["emotion"])
                 item["intent"] = g.get("intent", item["intent"])
                 item["reason"] = g.get("reason", item["reason"])
@@ -602,12 +825,29 @@ def analyze_history(comments, sensitivity="medium", strict=False, use_gemini=Fal
     aggression_score = aggression_score_for(breakdown)
     escalation_chance = escalation_chance_for(breakdown, drift_score, threat_count)
     threat_level = threat_level_for(breakdown)
-    final_label = final_label_for(toxicity_score, drift_score, aggression_score, threat_count)
+    final_label = final_label_for(
+        toxicity_score, drift_score, aggression_score, threat_count
+    )
 
-    total = {k: _signal_total(breakdown, k) for k in
-             ["abusive", "severe", "profanity", "aggressive", "hate", "bullying",
-              "attack", "threat", "sarcasm", "playful", "shouting", "positive",
-              "passive_aggressive", "apology"]}
+    total = {
+        k: _signal_total(breakdown, k)
+        for k in [
+            "abusive",
+            "severe",
+            "profanity",
+            "aggressive",
+            "hate",
+            "bullying",
+            "attack",
+            "threat",
+            "sarcasm",
+            "playful",
+            "shouting",
+            "positive",
+            "passive_aggressive",
+            "apology",
+        ]
+    }
 
     emotions = [b["emotion"] for b in breakdown]
     intents = [b["intent"] for b in breakdown]
@@ -628,7 +868,16 @@ def analyze_history(comments, sensitivity="medium", strict=False, use_gemini=Fal
     signal_density = sum(total.values()) / max(1, len(cleaned))
     confidence = int(min(98, 55 + signal_density * 6 + min(20, len(cleaned) * 2)))
 
-    community_health = max(0, min(100, int(100 - (toxicity_score * 0.55 + aggression_score * 0.25 + drift_score * 0.2))))
+    community_health = max(
+        0,
+        min(
+            100,
+            int(
+                100
+                - (toxicity_score * 0.55 + aggression_score * 0.25 + drift_score * 0.2)
+            ),
+        ),
+    )
 
     explanations = []
     if drift_type == "Rapid Escalation":
@@ -643,17 +892,23 @@ def analyze_history(comments, sensitivity="medium", strict=False, use_gemini=Fal
     if total["threat"] >= 1:
         explanations.append("Threatening language detected - escalate immediately.")
     if total["abusive"] >= 1:
-        explanations.append(f"Detected {total['abusive']} severe abusive Hindi/Hinglish phrase(s).")
+        explanations.append(
+            f"Detected {total['abusive']} severe abusive Hindi/Hinglish phrase(s)."
+        )
     if total["hate"] >= 1:
         explanations.append("Hate-speech phrasing detected.")
     if total["attack"] >= 1:
-        explanations.append("Personal attack patterns detected (e.g. 'tu ... hai', 'chup reh').")
+        explanations.append(
+            "Personal attack patterns detected (e.g. 'tu ... hai', 'chup reh')."
+        )
     if total["bullying"] >= 1:
         explanations.append("Bullying / humiliation patterns detected.")
     if total["passive_aggressive"] >= 1:
         explanations.append("Passive-aggressive tone detected.")
     if total["severe"] >= 2:
-        explanations.append(f"Multiple severe insults across comments ({total['severe']} hits).")
+        explanations.append(
+            f"Multiple severe insults across comments ({total['severe']} hits)."
+        )
     if total["sarcasm"] >= 2:
         explanations.append("Recurrent sarcastic / mocking tone.")
     if total["shouting"] >= 2:
@@ -666,21 +921,25 @@ def analyze_history(comments, sensitivity="medium", strict=False, use_gemini=Fal
     rows = []
     for i, b in enumerate(breakdown):
         rewrite = rewrite_toxic(b["comment"]) if b["score"] >= 40 else None
-        rows.append({
-            "index": i + 1,
-            "comment": b["comment"],
-            "score": b["score"],
-            "emotion": b["emotion"],
-            "intent": b["intent"],
-            "reason": b["reason"],
-            "tags": _tags_for(b),
-            "toxic_words": b["toxic_words"],
-            "rewrite": rewrite,
-        })
+        rows.append(
+            {
+                "index": i + 1,
+                "comment": b["comment"],
+                "score": b["score"],
+                "emotion": b["emotion"],
+                "intent": b["intent"],
+                "reason": b["reason"],
+                "tags": _tags_for(b),
+                "toxic_words": b["toxic_words"],
+                "rewrite": rewrite,
+            }
+        )
 
     riskiest = max(breakdown, key=lambda x: x["score"])
     safe_reply = safe_reply_for(riskiest["emotion"])
-    rewrite_top = rewrite_toxic(riskiest["comment"]) if riskiest["score"] >= 40 else None
+    rewrite_top = (
+        rewrite_toxic(riskiest["comment"]) if riskiest["score"] >= 40 else None
+    )
 
     return {
         "engine": used_engine,
@@ -710,21 +969,36 @@ def analyze_history(comments, sensitivity="medium", strict=False, use_gemini=Fal
 def _tags_for(b):
     tags = []
     s = b["signals"]
-    if s["threat"]: tags.append("threat")
-    if s["abusive"]: tags.append("abusive")
-    if s["hate"]: tags.append("hate")
-    if s["severe"]: tags.append("severe")
-    if s["bullying"]: tags.append("bullying")
-    if s["profanity"]: tags.append("profanity")
-    if s["aggressive"]: tags.append("aggressive")
-    if s["attack"]: tags.append("attack")
-    if s["passive_aggressive"]: tags.append("passive-agg")
-    if s["sarcasm"]: tags.append("sarcasm")
-    if s["shouting"]: tags.append("shouting")
-    if s["apology"]: tags.append("apology")
-    if s["playful"]: tags.append("playful")
-    if s["positive"] and not (s["abusive"] or s["severe"]): tags.append("positive")
-    if not tags: tags.append("neutral")
+    if s["threat"]:
+        tags.append("threat")
+    if s["abusive"]:
+        tags.append("abusive")
+    if s["hate"]:
+        tags.append("hate")
+    if s["severe"]:
+        tags.append("severe")
+    if s["bullying"]:
+        tags.append("bullying")
+    if s["profanity"]:
+        tags.append("profanity")
+    if s["aggressive"]:
+        tags.append("aggressive")
+    if s["attack"]:
+        tags.append("attack")
+    if s["passive_aggressive"]:
+        tags.append("passive-agg")
+    if s["sarcasm"]:
+        tags.append("sarcasm")
+    if s["shouting"]:
+        tags.append("shouting")
+    if s["apology"]:
+        tags.append("apology")
+    if s["playful"]:
+        tags.append("playful")
+    if s["positive"] and not (s["abusive"] or s["severe"]):
+        tags.append("positive")
+    if not tags:
+        tags.append("neutral")
     return tags
 
 
@@ -732,14 +1006,23 @@ def _tags_for(b):
 # 8. CHAT (MULTI-USER) ANALYSIS
 # ============================================================
 
-def analyze_chat(messages, sensitivity="medium", strict=False, use_gemini=False, gemini_key=None):
+
+def analyze_chat(
+    messages, sensitivity="medium", strict=False, use_gemini=False, gemini_key=None
+):
     """messages = [{user, text}, ...]"""
     cleaned = [m for m in messages if m.get("text", "").strip()]
     if not cleaned:
         return {"error": "Please add at least one message."}
 
     texts = [m["text"].strip() for m in cleaned]
-    base = analyze_history(texts, sensitivity=sensitivity, strict=strict, use_gemini=use_gemini, gemini_key=gemini_key)
+    base = analyze_history(
+        texts,
+        sensitivity=sensitivity,
+        strict=strict,
+        use_gemini=use_gemini,
+        gemini_key=gemini_key,
+    )
     if "error" in base:
         return base
 
@@ -752,9 +1035,16 @@ def analyze_chat(messages, sensitivity="medium", strict=False, use_gemini=False,
     for row in base["breakdown"]:
         u = row["user"]
         if u not in per_user:
-            per_user[u] = {"user": u, "messages": 0, "scores": [],
-                           "threats": 0, "abusive": 0, "attacks": 0,
-                           "apologies": 0, "bullying": 0}
+            per_user[u] = {
+                "user": u,
+                "messages": 0,
+                "scores": [],
+                "threats": 0,
+                "abusive": 0,
+                "attacks": 0,
+                "apologies": 0,
+                "bullying": 0,
+            }
         per_user[u]["messages"] += 1
         per_user[u]["scores"].append(row["score"])
 
@@ -772,17 +1062,19 @@ def analyze_chat(messages, sensitivity="medium", strict=False, use_gemini=False,
     for u, data in per_user.items():
         avg = int(sum(data["scores"]) / max(1, len(data["scores"])))
         peak = max(data["scores"]) if data["scores"] else 0
-        user_summaries.append({
-            "user": u,
-            "messages": data["messages"],
-            "avg_score": avg,
-            "peak_score": peak,
-            "threats": data["threats"],
-            "abusive": data["abusive"],
-            "attacks": data["attacks"],
-            "apologies": data["apologies"],
-            "bullying": data["bullying"],
-        })
+        user_summaries.append(
+            {
+                "user": u,
+                "messages": data["messages"],
+                "avg_score": avg,
+                "peak_score": peak,
+                "threats": data["threats"],
+                "abusive": data["abusive"],
+                "attacks": data["attacks"],
+                "apologies": data["apologies"],
+                "bullying": data["bullying"],
+            }
+        )
     user_summaries.sort(key=lambda x: x["avg_score"], reverse=True)
 
     # Main aggressor / victim pressure / mutual toxicity
@@ -794,7 +1086,9 @@ def analyze_chat(messages, sensitivity="medium", strict=False, use_gemini=False,
         top, second = user_summaries[0], user_summaries[1]
         gap = top["avg_score"] - second["avg_score"]
         max_score = max(top["avg_score"], 1)
-        mutual_toxicity = int(min(top["avg_score"], second["avg_score"]) / max_score * 100)
+        mutual_toxicity = int(
+            min(top["avg_score"], second["avg_score"]) / max_score * 100
+        )
 
         if top["avg_score"] < 22 and second["avg_score"] < 22:
             main_aggressor = "None"
@@ -839,14 +1133,16 @@ def analyze_chat(messages, sensitivity="medium", strict=False, use_gemini=False,
     if repeated >= 3:
         patterns.append("Repeated insults")
 
-    base.update({
-        "mode": "chat",
-        "user_summaries": user_summaries,
-        "main_aggressor": main_aggressor,
-        "victim_pressure": victim_pressure,
-        "mutual_toxicity": mutual_toxicity,
-        "patterns": patterns,
-    })
+    base.update(
+        {
+            "mode": "chat",
+            "user_summaries": user_summaries,
+            "main_aggressor": main_aggressor,
+            "victim_pressure": victim_pressure,
+            "mutual_toxicity": mutual_toxicity,
+            "patterns": patterns,
+        }
+    )
     return base
 
 
@@ -868,7 +1164,7 @@ Comments:
 
 def analyze_with_gemini(comments, api_key=None):
     try:
-        api_key = api_key or os.environ.get("GEMINI_API_KEY")
+        api_key = api_key or GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY")
         if not api_key:
             return None
         genai.configure(api_key=api_key)
@@ -890,12 +1186,17 @@ def analyze_with_gemini(comments, api_key=None):
 # 10. ROUTES
 # ============================================================
 
+
 @app.route("/")
 def index():
     # Engine is "ready" if the lib is installed; user can paste a key from the UI.
     gemini_ready = bool(_GEMINI_AVAILABLE)
-    env_key_set = bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE"
-    return render_template("index.html", gemini_ready=gemini_ready, env_key_set=env_key_set)
+    env_key_set = (
+        bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE"
+    )
+    return render_template(
+        "index.html", gemini_ready=gemini_ready, env_key_set=env_key_set
+    )
 
 
 @app.route("/analyze", methods=["POST"])
@@ -904,17 +1205,26 @@ def analyze():
     comments = data.get("comments")
     sensitivity = (data.get("sensitivity") or "medium").lower()
     strict = bool(data.get("strict"))
-    _key_available = bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE"
+    _key_available = (
+        bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE"
+    )
     use_gemini = data.get("use_gemini", _key_available)
     gemini_key = (data.get("gemini_key") or "").strip() or None
 
     if isinstance(comments, str):
         comments = comments.splitlines()
     if not isinstance(comments, list):
-        return jsonify({"error": "Invalid input. Provide comments as a list or string."}), 400
+        return jsonify(
+            {"error": "Invalid input. Provide comments as a list or string."}
+        ), 400
 
-    result = analyze_history(comments, sensitivity=sensitivity,
-                             strict=strict, use_gemini=use_gemini, gemini_key=gemini_key)
+    result = analyze_history(
+        comments,
+        sensitivity=sensitivity,
+        strict=strict,
+        use_gemini=use_gemini,
+        gemini_key=gemini_key,
+    )
     if "error" in result:
         return jsonify(result), 400
     result["mode"] = "single"
@@ -927,15 +1237,24 @@ def analyze_chat_route():
     messages = data.get("messages")
     sensitivity = (data.get("sensitivity") or "medium").lower()
     strict = bool(data.get("strict"))
-    _key_available = bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE"
+    _key_available = (
+        bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE"
+    )
     use_gemini = data.get("use_gemini", _key_available)
     gemini_key = (data.get("gemini_key") or "").strip() or None
 
     if not isinstance(messages, list):
-        return jsonify({"error": "Invalid input. Provide a list of {user, text} messages."}), 400
+        return jsonify(
+            {"error": "Invalid input. Provide a list of {user, text} messages."}
+        ), 400
 
-    result = analyze_chat(messages, sensitivity=sensitivity,
-                          strict=strict, use_gemini=use_gemini, gemini_key=gemini_key)
+    result = analyze_chat(
+        messages,
+        sensitivity=sensitivity,
+        strict=strict,
+        use_gemini=use_gemini,
+        gemini_key=gemini_key,
+    )
     if "error" in result:
         return jsonify(result), 400
     return jsonify(result)
@@ -943,10 +1262,13 @@ def analyze_chat_route():
 
 @app.route("/status")
 def status():
-    return jsonify({
-        "gemini_available": _GEMINI_AVAILABLE,
-        "gemini_key_set": bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE",
-    })
+    return jsonify(
+        {
+            "gemini_available": _GEMINI_AVAILABLE,
+            "gemini_key_set": bool(os.environ.get("GEMINI_API_KEY"))
+            or GEMINI_API_KEY != "PASTE_KEY_HERE",
+        }
+    )
 
 
 if __name__ == "__main__":
