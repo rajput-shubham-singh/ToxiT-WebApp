@@ -865,12 +865,18 @@ def analyze_history(
     breakdown = [score_single_comment(c, sensitivity, strict) for c in cleaned]
 
     if gemini_result:
+        # Gemini succeeded -- use its response directly (no blending) so the
+        # "Gemini Mode" badge actually reflects the model's classification.
+        # Local-AI scores remain available as a fallback if Gemini omits a row.
+        g_rows = gemini_result.get("comments", [])
         for i, item in enumerate(breakdown):
-            if i < len(gemini_result.get("comments", [])):
-                g = gemini_result["comments"][i]
-                item["score"] = int(
-                    item["score"] * 0.4 + g.get("score", item["score"]) * 0.6
-                )
+            if i < len(g_rows) and isinstance(g_rows[i], dict):
+                g = g_rows[i]
+                try:
+                    g_score = int(g.get("score", item["score"]))
+                except (TypeError, ValueError):
+                    g_score = item["score"]
+                item["score"] = max(0, min(100, g_score))
                 item["emotion"] = g.get("emotion", item["emotion"])
                 item["intent"] = g.get("intent", item["intent"])
                 item["reason"] = g.get("reason", item["reason"])
