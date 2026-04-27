@@ -92,6 +92,7 @@ const els = {
   exportBtn: $("#exportBtn"),
   settingsToggle: $("#settingsToggle"), settingsPanel: $("#settingsPanel"),
   geminiToggle: $("#geminiToggle"), geminiText: $("#geminiText"), geminiHint: $("#geminiHint"),
+  geminiKeyInput: $("#geminiKeyInput"), geminiKeySave: $("#geminiKeySave"), geminiKeyClear: $("#geminiKeyClear"),
   strictToggle: $("#strictToggle"), hindiSeg: $("#hindiSeg"),
   enginePill: $("#enginePill"), engineLabel: $("#engineLabel"),
 };
@@ -99,8 +100,10 @@ const els = {
 let trendChart = null;
 let lastResult = null;
 let chatRows = [];
-const settings = { use_gemini: false, strict: false, sensitivity: "medium" };
+const settings = { use_gemini: false, strict: false, sensitivity: "medium", gemini_key: "" };
 const geminiReady = document.body.dataset.geminiReady === "true";
+try { settings.gemini_key = localStorage.getItem("toxitrack_gemini_key") || ""; } catch (_) {}
+function hasGeminiKey() { return geminiReady && !!settings.gemini_key; }
 const USERS = ["User1", "User2", "User3", "User4"];
 
 // ===== Helpers =====
@@ -165,20 +168,30 @@ els.tabs.forEach((t) => {
 function syncGeminiUI() {
   if (!geminiReady) {
     els.geminiToggle.checked = false; els.geminiToggle.disabled = true;
-    els.geminiText.textContent = "Gemini API (key required)";
-    els.geminiHint.textContent = "Add GEMINI_API_KEY in Replit Secrets to enable.";
+    els.geminiText.textContent = "Gemini API (unavailable)";
+    els.geminiHint.textContent = "Gemini library not installed on the server.";
     els.enginePill.classList.remove("is-gemini");
     els.engineLabel.textContent = "Local AI Mode";
     return;
   }
-  if (settings.use_gemini) {
+  const keyOk = hasGeminiKey();
+  els.geminiToggle.disabled = !keyOk;
+  if (!keyOk) settings.use_gemini = false;
+  els.geminiToggle.checked = !!(settings.use_gemini && keyOk);
+
+  if (!keyOk) {
+    els.geminiText.textContent = "Use Gemini API (key required)";
+    els.geminiHint.textContent = "Paste your Gemini API key below, then toggle on.";
+    els.enginePill.classList.remove("is-gemini");
+    els.engineLabel.textContent = "Local AI Mode";
+  } else if (settings.use_gemini) {
     els.geminiText.textContent = "Gemini API (active)";
-    els.geminiHint.textContent = "Gemini will analyze with multilingual context.";
+    els.geminiHint.textContent = "Gemini will blend with the local engine.";
     els.enginePill.classList.add("is-gemini");
     els.engineLabel.textContent = "Gemini Mode";
   } else {
     els.geminiText.textContent = "Use Gemini API";
-    els.geminiHint.textContent = "Gemini key detected - toggle to enable.";
+    els.geminiHint.textContent = "Key saved - toggle on to use Gemini.";
     els.enginePill.classList.remove("is-gemini");
     els.engineLabel.textContent = "Local AI Mode";
   }
@@ -188,7 +201,40 @@ els.settingsToggle.addEventListener("click", () => {
   els.settingsPanel.classList.toggle("hidden", open);
   els.settingsToggle.setAttribute("aria-expanded", String(!open));
 });
-els.geminiToggle.addEventListener("change", (e) => { settings.use_gemini = e.target.checked; syncGeminiUI(); });
+els.geminiToggle.addEventListener("change", (e) => {
+  if (e.target.checked && !hasGeminiKey()) {
+    e.target.checked = false;
+    showToast("Add your Gemini API key first.");
+    return;
+  }
+  settings.use_gemini = e.target.checked;
+  syncGeminiUI();
+});
+// Gemini key input handlers
+if (els.geminiKeyInput) {
+  els.geminiKeyInput.value = settings.gemini_key ? "••••••••••••" : "";
+}
+if (els.geminiKeySave) {
+  els.geminiKeySave.addEventListener("click", () => {
+    const v = (els.geminiKeyInput.value || "").trim();
+    if (!v || v.startsWith("•")) { showToast("Paste a valid Gemini API key."); return; }
+    try { localStorage.setItem("toxitrack_gemini_key", v); } catch (_) {}
+    settings.gemini_key = v;
+    els.geminiKeyInput.value = "••••••••••••";
+    showToast("Gemini key saved.");
+    syncGeminiUI();
+  });
+}
+if (els.geminiKeyClear) {
+  els.geminiKeyClear.addEventListener("click", () => {
+    try { localStorage.removeItem("toxitrack_gemini_key"); } catch (_) {}
+    settings.gemini_key = "";
+    settings.use_gemini = false;
+    els.geminiKeyInput.value = "";
+    showToast("Gemini key cleared.");
+    syncGeminiUI();
+  });
+}
 els.strictToggle.addEventListener("change", (e) => { settings.strict = e.target.checked; });
 els.hindiSeg.addEventListener("click", (e) => {
   const btn = e.target.closest(".seg__btn"); if (!btn) return;
@@ -556,7 +602,9 @@ async function analyze() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         comments: text, sensitivity: settings.sensitivity,
-        strict: settings.strict, use_gemini: settings.use_gemini && geminiReady,
+        strict: settings.strict,
+        use_gemini: settings.use_gemini && hasGeminiKey(),
+        gemini_key: settings.gemini_key || "",
       }),
     });
     const data = await res.json();
@@ -577,7 +625,9 @@ async function analyzeChat() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         messages, sensitivity: settings.sensitivity,
-        strict: settings.strict, use_gemini: settings.use_gemini && geminiReady,
+        strict: settings.strict,
+        use_gemini: settings.use_gemini && hasGeminiKey(),
+        gemini_key: settings.gemini_key || "",
       }),
     });
     const data = await res.json();

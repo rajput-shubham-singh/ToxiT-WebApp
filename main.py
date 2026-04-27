@@ -735,7 +735,7 @@ def analyze_chat(messages, sensitivity="medium", strict=False, use_gemini=False,
         return {"error": "Please add at least one message."}
 
     texts = [m["text"].strip() for m in cleaned]
-    base = analyze_history(texts, sensitivity=sensitivity, strict=strict, use_gemini=use_gemini)
+    base = analyze_history(texts, sensitivity=sensitivity, strict=strict, use_gemini=use_gemini, gemini_key=gemini_key)
     if "error" in base:
         return base
 
@@ -888,8 +888,10 @@ def analyze_with_gemini(comments, api_key=None):
 
 @app.route("/")
 def index():
-    gemini_ready = bool(_GEMINI_AVAILABLE and os.environ.get("GEMINI_API_KEY"))
-    return render_template("index.html", gemini_ready=gemini_ready)
+    # Engine is "ready" if the lib is installed; user can paste a key from the UI.
+    gemini_ready = bool(_GEMINI_AVAILABLE)
+    env_key_set = bool(os.environ.get("GEMINI_API_KEY"))
+    return render_template("index.html", gemini_ready=gemini_ready, env_key_set=env_key_set)
 
 
 @app.route("/analyze", methods=["POST"])
@@ -899,6 +901,7 @@ def analyze():
     sensitivity = (data.get("sensitivity") or "medium").lower()
     strict = bool(data.get("strict"))
     use_gemini = bool(data.get("use_gemini"))
+    gemini_key = (data.get("gemini_key") or "").strip() or None
 
     if isinstance(comments, str):
         comments = comments.splitlines()
@@ -906,7 +909,7 @@ def analyze():
         return jsonify({"error": "Invalid input. Provide comments as a list or string."}), 400
 
     result = analyze_history(comments, sensitivity=sensitivity,
-                             strict=strict, use_gemini=use_gemini)
+                             strict=strict, use_gemini=use_gemini, gemini_key=gemini_key)
     if "error" in result:
         return jsonify(result), 400
     result["mode"] = "single"
@@ -920,12 +923,13 @@ def analyze_chat_route():
     sensitivity = (data.get("sensitivity") or "medium").lower()
     strict = bool(data.get("strict"))
     use_gemini = bool(data.get("use_gemini"))
+    gemini_key = (data.get("gemini_key") or "").strip() or None
 
     if not isinstance(messages, list):
         return jsonify({"error": "Invalid input. Provide a list of {user, text} messages."}), 400
 
     result = analyze_chat(messages, sensitivity=sensitivity,
-                          strict=strict, use_gemini=use_gemini)
+                          strict=strict, use_gemini=use_gemini, gemini_key=gemini_key)
     if "error" in result:
         return jsonify(result), 400
     return jsonify(result)

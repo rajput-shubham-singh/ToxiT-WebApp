@@ -143,6 +143,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .btn--primary { background: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 100%); color: #0b0c1a; padding: 13px 26px; box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset, 0 14px 34px rgba(139, 92, 246, 0.55), 0 0 22px rgba(34, 211, 238, 0.35); }
 .btn--primary:hover { transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(255,255,255,0.12) inset, 0 18px 46px rgba(34, 211, 238, 0.55), 0 0 30px rgba(139, 92, 246, 0.5); }
 .btn--primary:active { transform: translateY(0); }
+
+/* Gemini key input */
+.gemini-key-row { display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+.gemini-key-input { flex: 1; min-width: 200px; background: rgba(4, 5, 13, 0.6); color: var(--text); border: 1px solid rgba(139, 92, 246, 0.25); border-radius: 10px; padding: 9px 12px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.gemini-key-input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15); }
 .btn--ghost { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12); }
 .btn--ghost:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(139, 92, 246, 0.5); }
 .btn--lg { padding: 14px 28px; font-size: 15px; }
