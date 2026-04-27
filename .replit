@@ -52,3 +52,8 @@ externalPort = 80
 [nix]
 channel = "stable-25_05"
 packages = ["openssl", "postgresql"]
+
+[userenv]
+
+[userenv.shared]
+AIzaSyAllYZnvjO6zmL4r9SxYTWWbm5dCCycAKo = "Gemini"
