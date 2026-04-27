@@ -11,15 +11,25 @@ ToxiTrack AI v3 - Multilingual Conversation Risk Analyzer
 import os
 import re
 import json
+import importlib.util
 from collections import Counter
 from flask import Flask, render_template, request, jsonify
 
-try:
-    import google.generativeai as genai
+# Detect Gemini availability without importing the heavy package at boot
+# (the import + warning roundtrip noticeably slows cold start). The actual
+# `google.generativeai` module is lazy-loaded on the first /analyze call
+# that requests Gemini blending.
+_GEMINI_AVAILABLE = importlib.util.find_spec("google.generativeai") is not None
+_genai = None  # populated lazily by _load_genai()
 
-    _GEMINI_AVAILABLE = True
-except Exception:
-    _GEMINI_AVAILABLE = False
+
+def _load_genai():
+    global _genai
+    if _genai is None and _GEMINI_AVAILABLE:
+        import google.generativeai as genai  # noqa: WPS433 (lazy by design)
+        _genai = genai
+    return _genai
+
 
 app = Flask(__name__)
 
@@ -1223,22 +1233,22 @@ def analyze_chat(
 # 9. OPTIONAL GEMINI MODE
 # ============================================================
 
-GEMINI_PROMPT = """You are a multilingual toxicity classifier for English, Hindi,
-Hinglish and Roman Hindi comments. For EACH comment in the JSON list below,
-return a JSON object with these exact keys:
-  - score (0-100 toxicity score)
-  - emotion (one of: Neutral, Positive, Playful, Frustrated, Negative, Sarcastic, Angry, Threat, Calm)
-  - intent (one of: neutral, supportive, playful, frustration, mockery, anger, bullying, threat, hate)
-  - reason (one short English sentence)
-Return ONLY a JSON object: {"comments": [ ... ]} - no prose, no markdown.
-Comments:
-"""
+GEMINI_PROMPT = (
+    "Toxicity classifier for English/Hindi/Hinglish. For each comment in the "
+    "JSON list, return JSON {\"comments\":[{score:0-100,emotion,intent,reason}]}. "
+    "emotion in [Neutral,Positive,Playful,Frustrated,Negative,Sarcastic,Angry,Threat,Calm]. "
+    "intent in [neutral,supportive,playful,frustration,mockery,anger,bullying,threat,hate]. "
+    "reason: short. Output only JSON. Comments:\n"
+)
 
 
 def analyze_with_gemini(comments, api_key=None):
     try:
         api_key = api_key or GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY")
         if not api_key:
+            return None
+        genai = _load_genai()
+        if genai is None:
             return None
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel("gemini-1.5-flash")
