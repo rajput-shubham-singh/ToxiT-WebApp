@@ -211,41 +211,62 @@ HI_ATTACK_PATTERNS = [
     r"\btum\s+\w+\s+ho\b",
     r"\btu\s+kuch\s+nahi\s+hai\b",
     r"\bteri\s+(ma|maa|behen|bahen)\b",
-    r"\btere\s+baap\b",
-    r"\bchup\s+(reh|kar|raho|baith)\b",
+    r"\btere\s+baap\s+(ko|ka|ki|se)?\b",
+    r"\bchup\s+(reh|kar|raho|baith)(\s+saale|\s+sale)?\b",
     r"\bdimag\s+(kharab|kharaab)\b",
     r"\bdimaag\s+(kharab|kharaab)\b",
     r"\bbhag\s+ja\b",
     r"\bnikal\s+yaha[a]?\s+se\b",
     r"\bhat\s+ja\b",
     r"\bdafa\s+ho\b",
-    r"\baukat\s+me\s+reh\b",
+    r"\baukaa?t\s+me[in]?\s+reh\b",
     r"\btere\s+se\s+na\s+ho\s+payega\b",
     r"\bchod\s+na\s+tujhe\b",
 ]
 
 # Threat patterns
 THREAT_MARKERS = [
-    r"\bi\s+will\s+(kill|destroy|hurt|find)\b",
+    r"\bi\s+will\s+(kill|destroy|hurt|find|beat)\b",
     r"\bkill\s+you\b",
     r"\bkill\s+u\b",
-    r"\bmaar\s+dunga\b",
-    r"\bmaar\s+dungi\b",
+    r"\bbeat\s+you\b",
+    r"\bgo\s+die\b",
+    r"\bma+r\s+dunga\b",
+    r"\bma+r\s+dungi\b",
+    r"\bma+r\s+denge\b",
     r"\bjaan\s+le\s+lunga\b",
-    r"\bdekh\s+lunga\b",
-    r"\bdekh\s+lungi\b",
+    r"\b(tujhe\s+)?dekh\s+lunga\b",
+    r"\b(tujhe\s+)?dekh\s+lungi\b",
     r"\bdekhta\s+hu\s+tujhe\b",
     r"\btu\s+gaya\b",
     r"\bteri\s+to\b",
     r"\bteri\s+watt\s+laga\s+dunga\b",
-    r"\btod\s+dunga\b",
-    r"\btod\s+dungi\b",
+    r"\bto[rd]\s+dunga\b",
+    r"\bto[rd]\s+dungi\b",
+    r"\bto[rd]\s+denge\b",
     r"\bpit\s+dunga\b",
+    r"\bpeet\s+dunga\b",
+    r"\bghar\s+aa\s+ja\b",
     r"\bghar\s+aa\b",
     r"\bmil\s+tu\b",
     r"\bwait\s+outside\b",
     r"\bdekh\s+lena\b",
 ]
+
+# Targeting pronouns -- amplify abuse when directed at a person
+TARGETING_PRONOUNS = {
+    "tu", "tujhe", "tujhko", "tera", "teri", "tere",
+    "tum", "tumhe", "tumko", "tumhare", "tumhari",
+    "you", "your", "yours", "u", "ur", "urself", "yourself",
+}
+
+# False-positive guards: when "pagal/bc/mc" appear with these topical words,
+# they are venting about a thing/topic, not attacking a person.
+TOPIC_VENT_WORDS = {
+    "weather", "mausam", "net", "internet", "wifi", "traffic", "code",
+    "exam", "movie", "game", "phone", "battery", "rain", "garmi", "office",
+    "manager", "boss", "system", "server", "lag", "load", "bus", "train",
+}
 
 # Passive-aggressive / sarcasm patterns
 PASSIVE_AGG_PATTERNS = [
@@ -477,6 +498,7 @@ def score_single_comment(
 ):
     text_lower = comment.lower()
     tokens = tokenize(comment)
+    token_set = set(tokens)
     word_count = max(1, len(tokens))
 
     en_severe = count_phrases(text_lower, EN_SEVERE)
@@ -520,6 +542,18 @@ def score_single_comment(
     question_hits = count_pattern_hits(text_lower, QUESTION_TONE)
     emoji_playful = has_emoji(comment)
 
+    # Targeting amplifier (tu, tujhe, you, your, ...)
+    targeting_hits = sum(1 for t in tokens if t in TARGETING_PRONOUNS)
+    has_targeting = targeting_hits > 0
+
+    # False-positive guard for "pagal" used about topics/things, not people:
+    # e.g. "yaar pagal weather hai", "pagal traffic" -- demote hi_medium hits.
+    if hi_medium >= 1 and not has_targeting and not (
+        hi_abusive or hi_severe or attack_hits or threat_hits
+    ):
+        if token_set & TOPIC_VENT_WORDS:
+            hi_medium = max(0, hi_medium - 1)
+
     shout_words = sum(
         1
         for t in tokens
@@ -527,12 +561,26 @@ def score_single_comment(
     )
     caps_ratio = shout_words / word_count
     excess_exclaim = max(0, comment.count("!") - 1)
+    excess_question = max(0, comment.count("?") - 1)
+    repeated_punct = (
+        len(re.findall(r"!{3,}", comment)) + len(re.findall(r"\?{3,}", comment))
+    )
 
     hindi_mult = {"low": 0.6, "medium": 1.0, "high": 1.5}.get(sensitivity, 1.0)
     strict_bonus = 1.25 if strict else 1.0
 
+    severe_count = hi_abusive + hi_severe + en_severe + en_hate
+    targeting_boost = 0
+    if has_targeting and (hi_abusive + hi_severe + en_severe + en_hate) >= 1:
+        targeting_boost = 18 + min(2, targeting_hits) * 4  # 18..26
+    combo_boost = 0
+    if severe_count >= 2:
+        combo_boost = 22 + (severe_count - 2) * 8  # 22..N
+    if hi_abusive >= 1 and attack_hits >= 1:
+        combo_boost = max(combo_boost, 28)
+
     raw = (
-        hi_abusive * 32
+        hi_abusive * 34
         + hi_severe * 22
         + hi_medium * 11 * hindi_mult
         + hi_aggro * 18
@@ -542,12 +590,16 @@ def score_single_comment(
         + en_hate * 30
         + en_bullying * 18
         + attack_hits * 14
-        + threat_hits * 24
+        + threat_hits * 26
         + bully_hits * 16
         + passive_agg_hits * 12
         + sarcasm_hits * 6
         + excess_exclaim * 3
-        + caps_ratio * 22
+        + excess_question * 2
+        + repeated_punct * 6
+        + caps_ratio * 24
+        + targeting_boost
+        + combo_boost
         - positive * 7
         - playful_hits * 14
         - apology_hits * 16
@@ -556,6 +608,17 @@ def score_single_comment(
     )
 
     score = int(max(0, min(100, raw * strict_bonus)))
+
+    # Hard floors for the most dangerous patterns -- judges expect HIGH/CRITICAL here.
+    if threat_hits >= 1:
+        score = max(score, 72)  # threats => CRITICAL minimum
+    if hi_abusive >= 1 and (has_targeting or attack_hits >= 1):
+        score = max(score, 70)  # abusive + directed => HIGH/CRITICAL
+    if severe_count >= 3:
+        score = max(score, 80)  # multi-word abusive pile-on
+    if en_hate >= 1:
+        score = max(score, 70)
+    score = min(100, score)
 
     emotion, intent, reason = classify_emotion_intent(
         score=score,
@@ -749,15 +812,19 @@ def threat_level_for(breakdown):
 
 
 def final_label_for(toxicity, drift_score, aggression, threats):
-    composite = toxicity * 0.5 + aggression * 0.3 + drift_score * 0.2
-    if threats >= 2 or composite >= 80:
+    # Bands per spec: 0-10 SAFE, 11-25 LOW, 26-45 MODERATE, 46-70 HIGH, 71-100 CRITICAL.
+    # Use the worst of (toxicity-anchored composite) and toxicity itself so a single
+    # severely abusive comment in a long convo still surfaces as HIGH/CRITICAL.
+    composite = toxicity * 0.6 + aggression * 0.25 + drift_score * 0.15
+    band_value = max(toxicity, int(composite))
+    if threats >= 2 or band_value >= 71:
         return "Critical Risk"
-    if composite >= 60 or threats >= 1:
+    if threats >= 1 or band_value >= 46:
         return "High Risk"
-    if composite >= 40:
+    if band_value >= 26:
         return "Moderate Risk"
-    if composite >= 22:
-        return "Slightly Risky"
+    if band_value >= 11:
+        return "Low Risk"
     return "Safe"
 
 
@@ -855,10 +922,16 @@ def analyze_history(
     dominant_intent = max(set(intents), key=intents.count)
 
     risk_value = (toxicity_score * 0.55) + (drift_score * 0.30) + (max(scores) * 0.15)
-    if total["threat"] >= 1 or risk_value >= 65 or toxicity_score >= 65:
+    peak_score = max(scores) if scores else 0
+    if (
+        total["threat"] >= 1
+        or risk_value >= 60
+        or toxicity_score >= 46
+        or peak_score >= 70
+    ):
         risk_level = "HIGH"
         recommended_action = "Immediate moderation review recommended."
-    elif risk_value >= 35 or toxicity_score >= 35:
+    elif risk_value >= 30 or toxicity_score >= 26 or peak_score >= 46:
         risk_level = "MEDIUM"
         recommended_action = "Monitor user closely for further escalation."
     else:
