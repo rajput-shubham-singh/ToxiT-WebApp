@@ -92,7 +92,7 @@ const els = {
   exportBtn: $("#exportBtn"),
   settingsToggle: $("#settingsToggle"), settingsPanel: $("#settingsPanel"),
   geminiToggle: $("#geminiToggle"), geminiText: $("#geminiText"), geminiHint: $("#geminiHint"),
-  geminiKeyInput: $("#geminiKeyInput"), geminiKeySave: $("#geminiKeySave"), geminiKeyClear: $("#geminiKeyClear"),
+
   strictToggle: $("#strictToggle"), hindiSeg: $("#hindiSeg"),
   enginePill: $("#enginePill"), engineLabel: $("#engineLabel"),
 };
@@ -100,10 +100,8 @@ const els = {
 let trendChart = null;
 let lastResult = null;
 let chatRows = [];
-const settings = { use_gemini: false, strict: false, sensitivity: "medium", gemini_key: "" };
+const settings = { use_gemini: false, strict: false, sensitivity: "medium" };
 const geminiReady = document.body.dataset.geminiReady === "true";
-try { settings.gemini_key = localStorage.getItem("toxitrack_gemini_key") || ""; } catch (_) {}
-function hasGeminiKey() { return geminiReady && !!settings.gemini_key; }
 const USERS = ["User1", "User2", "User3", "User4"];
 
 // ===== Helpers =====
@@ -174,24 +172,15 @@ function syncGeminiUI() {
     els.engineLabel.textContent = "Local AI Mode";
     return;
   }
-  const keyOk = hasGeminiKey();
-  els.geminiToggle.disabled = !keyOk;
-  if (!keyOk) settings.use_gemini = false;
-  els.geminiToggle.checked = !!(settings.use_gemini && keyOk);
-
-  if (!keyOk) {
-    els.geminiText.textContent = "Use Gemini API (key required)";
-    els.geminiHint.textContent = "Paste your Gemini API key below, then toggle on.";
-    els.enginePill.classList.remove("is-gemini");
-    els.engineLabel.textContent = "Local AI Mode";
-  } else if (settings.use_gemini) {
+  els.geminiToggle.checked = settings.use_gemini;
+  if (settings.use_gemini) {
     els.geminiText.textContent = "Gemini API (active)";
     els.geminiHint.textContent = "Gemini will blend with the local engine.";
     els.enginePill.classList.add("is-gemini");
     els.engineLabel.textContent = "Gemini Mode";
   } else {
     els.geminiText.textContent = "Use Gemini API";
-    els.geminiHint.textContent = "Key saved - toggle on to use Gemini.";
+    els.geminiHint.textContent = "Toggle on to use smarter Gemini scoring.";
     els.enginePill.classList.remove("is-gemini");
     els.engineLabel.textContent = "Local AI Mode";
   }
@@ -202,39 +191,9 @@ els.settingsToggle.addEventListener("click", () => {
   els.settingsToggle.setAttribute("aria-expanded", String(!open));
 });
 els.geminiToggle.addEventListener("change", (e) => {
-  if (e.target.checked && !hasGeminiKey()) {
-    e.target.checked = false;
-    showToast("Add your Gemini API key first.");
-    return;
-  }
   settings.use_gemini = e.target.checked;
   syncGeminiUI();
 });
-// Gemini key input handlers
-if (els.geminiKeyInput) {
-  els.geminiKeyInput.value = settings.gemini_key ? "••••••••••••" : "";
-}
-if (els.geminiKeySave) {
-  els.geminiKeySave.addEventListener("click", () => {
-    const v = (els.geminiKeyInput.value || "").trim();
-    if (!v || v.startsWith("•")) { showToast("Paste a valid Gemini API key."); return; }
-    try { localStorage.setItem("toxitrack_gemini_key", v); } catch (_) {}
-    settings.gemini_key = v;
-    els.geminiKeyInput.value = "••••••••••••";
-    showToast("Gemini key saved.");
-    syncGeminiUI();
-  });
-}
-if (els.geminiKeyClear) {
-  els.geminiKeyClear.addEventListener("click", () => {
-    try { localStorage.removeItem("toxitrack_gemini_key"); } catch (_) {}
-    settings.gemini_key = "";
-    settings.use_gemini = false;
-    els.geminiKeyInput.value = "";
-    showToast("Gemini key cleared.");
-    syncGeminiUI();
-  });
-}
 els.strictToggle.addEventListener("change", (e) => { settings.strict = e.target.checked; });
 els.hindiSeg.addEventListener("click", (e) => {
   const btn = e.target.closest(".seg__btn"); if (!btn) return;
@@ -603,8 +562,7 @@ async function analyze() {
       body: JSON.stringify({
         comments: text, sensitivity: settings.sensitivity,
         strict: settings.strict,
-        use_gemini: settings.use_gemini && hasGeminiKey(),
-        gemini_key: settings.gemini_key || "",
+        use_gemini: settings.use_gemini,
       }),
     });
     const data = await res.json();
@@ -626,8 +584,7 @@ async function analyzeChat() {
       body: JSON.stringify({
         messages, sensitivity: settings.sensitivity,
         strict: settings.strict,
-        use_gemini: settings.use_gemini && hasGeminiKey(),
-        gemini_key: settings.gemini_key || "",
+        use_gemini: settings.use_gemini,
       }),
     });
     const data = await res.json();

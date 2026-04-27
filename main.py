@@ -24,7 +24,7 @@ app = Flask(__name__)
 
 # Hardcoded Gemini key — replace with your actual key.
 # Leave as-is to use local AI only.
-GEMINI_API_KEY = "PASTE_KEY_HERE"
+GEMINI_API_KEY = "AIzaSyAllYZnvjO6zmL4r9SxYTWWbm5dCCycAKo"
 
 # ============================================================
 # 1. MULTILINGUAL LEXICONS
