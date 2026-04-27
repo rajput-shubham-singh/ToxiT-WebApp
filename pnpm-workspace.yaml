@@ -33,6 +33,8 @@ minimumReleaseAgeExclude:
   # this setting guards against does not apply to our own packages.
   - '@replit/*'
   - stripe-replit-sync
+  # postcss 8.5.12 fixes GHSA-qx2v-qp2m-jg93; exclude temporarily until 24h window passes.
+  - postcss
 
 packages:
   - artifacts/*
@@ -157,3 +159,11 @@ overrides:
   # drizzle-kit uses esbuild internally on an older version that's vulnerable, this overrides it
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
   esbuild: "0.27.3"
+  # Security vulnerability fixes
+  "picomatch@>=2.0.0 <3": "2.3.2"
+  "picomatch@>=4.0.0 <5": "4.0.4"
+  "path-to-regexp@>=8.0.0 <9": "8.4.2"
+  lodash: "4.18.1"
+  yaml: "2.8.3"
+  "brace-expansion@>=2.0.0 <3": "2.0.3"
+  postcss: "8.5.12"
