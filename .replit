@@ -3,7 +3,7 @@ modules = ["nodejs-24", "python-3.11"]
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
+run = [".pythonlibs/bin/gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "main:app"]
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
