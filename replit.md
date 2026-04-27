@@ -32,7 +32,11 @@ The app runs via gunicorn using the virtual environment at `.pythonlibs/`:
 
 ## Environment Variables
 
-- `GEMINI_API_KEY` (optional) — Enables Gemini AI blended scoring. Without it, the local rule-based engine is used.
+- `GEMINI_API_KEY` (optional) — Enables Gemini AI blended scoring. Without it, the local rule-based engine is used. Set via Replit Secrets (never hardcode).
+
+## Recent Changes
+
+- 2026-04-27: Migrated to Replit. Removed hardcoded Gemini API key from `main.py` (now read from `GEMINI_API_KEY` env var only). Fixed a syntax error in `analyze_with_gemini`. Installed Python deps (flask, flask-sqlalchemy, gunicorn, psycopg2-binary, email-validator, google-generativeai) and confirmed the gunicorn workflow boots on port 5000.
 
 ## Features
 

@@ -23,9 +23,9 @@ except Exception:
 
 app = Flask(__name__)
 
-# Hardcoded Gemini key — replace with your actual key.
-# Leave as-is to use local AI only.
-GEMINI_API_KEY = "AIzaSyAllYZnvjO6zmL4r9SxYTWWbm5dCCycAKo"
+# Gemini API key is loaded from the GEMINI_API_KEY environment variable.
+# Leave unset to use the local rule-based engine only.
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 # ============================================================
 # 1. MULTILINGUAL LEXICONS
@@ -778,7 +778,7 @@ def analyze_history(
     effective_key = (
         gemini_key
         or os.environ.get("GEMINI_API_KEY")
-        or (GEMINI_API_KEY if GEMINI_API_KEY != "PASTE_KEY_HERE" else None)
+        or (GEMINI_API_KEY if bool(GEMINI_API_KEY) else None)
     )
     if use_gemini and _GEMINI_AVAILABLE and effective_key:
         gemini_result = analyze_with_gemini(cleaned, api_key=effective_key)
@@ -1177,9 +1177,9 @@ def analyze_with_gemini(comments, api_key=None):
         data = json.loads(text)
         if isinstance(data, dict) and isinstance(data.get("comments"), list):
             return data
-        except Exception :
         return None
-    return None
+    except Exception:
+        return None
 
 
 # ============================================================
@@ -1192,7 +1192,7 @@ def index():
     # Engine is "ready" if the lib is installed; user can paste a key from the UI.
     gemini_ready = bool(_GEMINI_AVAILABLE)
     env_key_set = (
-        bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE"
+        bool(os.environ.get("GEMINI_API_KEY")) or bool(GEMINI_API_KEY)
     )
     return render_template(
         "index.html", gemini_ready=gemini_ready, env_key_set=env_key_set
@@ -1206,7 +1206,7 @@ def analyze():
     sensitivity = (data.get("sensitivity") or "medium").lower()
     strict = bool(data.get("strict"))
     _key_available = (
-        bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE"
+        bool(os.environ.get("GEMINI_API_KEY")) or bool(GEMINI_API_KEY)
     )
     use_gemini = data.get("use_gemini", _key_available)
     gemini_key = (data.get("gemini_key") or "").strip() or None
@@ -1238,7 +1238,7 @@ def analyze_chat_route():
     sensitivity = (data.get("sensitivity") or "medium").lower()
     strict = bool(data.get("strict"))
     _key_available = (
-        bool(os.environ.get("GEMINI_API_KEY")) or GEMINI_API_KEY != "PASTE_KEY_HERE"
+        bool(os.environ.get("GEMINI_API_KEY")) or bool(GEMINI_API_KEY)
     )
     use_gemini = data.get("use_gemini", _key_available)
     gemini_key = (data.get("gemini_key") or "").strip() or None
@@ -1266,7 +1266,7 @@ def status():
         {
             "gemini_available": _GEMINI_AVAILABLE,
             "gemini_key_set": bool(os.environ.get("GEMINI_API_KEY"))
-            or GEMINI_API_KEY != "PASTE_KEY_HERE",
+            or bool(GEMINI_API_KEY),
         }
     )
 
