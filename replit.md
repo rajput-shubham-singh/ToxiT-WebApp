@@ -1,45 +1,45 @@
 # ToxiTrack AI
 
-## Overview
-
-A hackathon-ready Flask web app that predicts toxicity escalation and behavioral drift from a user's recent comment history. Pure rule-based scoring engine — no paid APIs required.
+A multilingual (English, Hindi, Hinglish, Roman Hindi) toxicity and behavioral drift analyzer. Predicts rising hostility and escalation risk in user comment histories or chat conversations.
 
 ## Stack
 
-- **Backend**: Python 3.11 + Flask
-- **Frontend**: HTML, CSS, vanilla JS
-- **Charts**: Chart.js (CDN)
-- **Fonts**: Space Grotesk + JetBrains Mono (Google Fonts)
+- **Backend**: Python 3.11 / Flask (gunicorn in production)
+- **Frontend**: Vanilla JS + Chart.js (single HTML page served via Flask templates)
+- **Optional AI**: Google Gemini 1.5 Flash (user-provided API key, gracefully degrades to rule-based engine)
 
-## File Structure
+## Key Files
 
-```
-main.py                  # Flask backend + scoring engine
-templates/index.html     # Single-page UI (hero, analyzer, dashboard)
-static/style.css         # Dark futuristic glassmorphism styles
-static/script.js         # UI interactions + Chart.js trend chart
-```
+- `main.py` — Flask app with all scoring logic, routes, and multilingual lexicons
+- `templates/index.html` — Single-page frontend UI
+- `static/style.css` — Glassmorphism dark theme styles
+- `static/script.js` — Frontend logic, Chart.js dashboards, API calls
 
-## How It Works
+## API Routes
 
-1. User pastes comments (one per line) into the analyzer textarea.
-2. Frontend POSTs JSON to `/analyze`.
-3. Backend (`analyze_history` in `main.py`) computes:
-   - **toxicity_score** (0-100) — weighted average across all comments
-   - **drift_score** (0-100) — change in hostility from earlier to later comments
-   - **escalation_risk** — LOW / MEDIUM / HIGH classification
-   - Per-comment breakdown with signal tags
-4. Dashboard renders metric cards, AI explanation, recommended action, trend chart, and breakdown.
+- `GET /` — Renders the main UI
+- `POST /analyze` — Accepts `{comments: [...], sensitivity, strict, use_gemini, gemini_key}`, returns toxicity analysis
+- `POST /analyze_chat` — Accepts `{messages: [{user, text},...]}`, returns per-user chat analysis
+- `GET /status` — Returns `{gemini_available, gemini_key_set}`
 
-## How to Run on Replit
+## Running
 
-1. Open the project on Replit.
-2. The `Start application` workflow runs `python main.py` automatically.
-3. Flask binds to `0.0.0.0:5000` (uses `PORT` env var if set).
-4. The preview pane displays the live UI — click **Demo Data** to populate sample comments, then **Analyze Behavior**.
-
-To run manually from a shell:
+The app runs via gunicorn using the virtual environment at `.pythonlibs/`:
 
 ```
-python main.py
+.pythonlibs/bin/gunicorn --bind 0.0.0.0:5000 --reload main:app
 ```
+
+## Environment Variables
+
+- `GEMINI_API_KEY` (optional) — Enables Gemini AI blended scoring. Without it, the local rule-based engine is used.
+
+## Features
+
+- English + Hindi/Hinglish/Roman Hindi toxicity detection
+- Per-comment scoring with emotion/intent/reason classification
+- Behavioral drift analysis (stable vs. escalating)
+- Aggression score, escalation chance, threat level
+- Main aggressor detection in multi-user chat mode
+- Safe reply suggestions and toxic comment rewrites
+- Interactive trend charts via Chart.js
