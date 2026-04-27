@@ -3,7 +3,7 @@ modules = ["nodejs-24", "python-3.11"]
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
-run = [".pythonlibs/bin/gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "main:app"]
+run = [".pythonlibs/bin/gunicorn", "--bind=0.0.0.0:5000", "--bind=0.0.0.0:8081", "--reuse-port", "main:app"]
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
@@ -30,7 +30,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = ".pythonlibs/bin/gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+args = ".pythonlibs/bin/gunicorn --bind 0.0.0.0:5000 --bind 0.0.0.0:8081 --reuse-port --reload main:app"
 waitForPort = 5000
 
 [agent]
