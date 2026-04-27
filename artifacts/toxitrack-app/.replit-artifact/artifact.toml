@@ -1,0 +1,21 @@
+kind = "web"
+previewPath = "/"
+title = "ToxiTrack AI"
+version = "1.0.0"
+id = "eNHH0FCll9DLNp3xxg6X4"
+
+[[services]]
+localPort = 5000
+name = "ToxiTrack Flask"
+paths = ["/"]
+
+[services.development]
+run = "python /home/runner/workspace/main.py"
+
+[services.production]
+
+[services.production.run]
+args = ["python", "/home/runner/workspace/main.py"]
+
+[services.production.run.env]
+PORT = "5000"
