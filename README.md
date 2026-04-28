@@ -1,6 +1,8 @@
 # ToxiTrack-AI 🚀
 
-![Dashboard Screenshot](dashboard.png)
+![Homepage](Screenshot%202026-04-28%20125440.png)
+
+![Dashboard](Screenshot%202026-04-28%20125519.png)
 
 ### AI Powered Toxicity & Behavior Analysis Platform
 
