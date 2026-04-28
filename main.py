@@ -158,9 +158,22 @@ EN_BULLYING = {
     "waste of time",
     "waste of company time",
     "waste of resources",
+    "waste of salary",
     "nobody likes working with you",
     "poor attitude",
     "replaceable employee",
+    "dragging the team down",
+    "you are a burden",
+    "you lack basic skills",
+    "dead weight",
+    "everyone hates you",
+    "leave the group",
+    "you do not belong here",
+    "you don't belong here",
+    "you need me",
+    "no one else will accept you",
+    "do what i say",
+    "stay quiet",
 }
 
 # MILD rude / negative descriptors. These are not severe abusives, but they
@@ -191,6 +204,21 @@ EN_MILD = {
     "toxic person",
     "awkward person",
     "mean person",
+    "clueless",
+    "weird",
+    "overacting",
+    "overconfident",
+    "slow person",
+    "pick me",
+    "try hard",
+    "wannabe",
+    "fake friend",
+    "backstabber",
+    "two faced",
+    "two-faced",
+    "show off",
+    "drama queen",
+    "snake person",
 }
 
 # --- HINDI / HINGLISH / ROMAN HINDI ---
@@ -369,6 +397,16 @@ THREAT_MARKERS = [
     r"\bdekh\s+lena\b",
     r"\bsee\s+what\s+happens\b",
     r"\bi\s+will\s+ruin\s+you\b",
+    r"\bwatch\s+yourself\b",
+    r"\bwatch\s+urself\b",
+    r"\byou\s+will\s+regret\s+(it|this)\b",
+    r"\bu\s+will\s+regret\s+(it|this)\b",
+    r"\btry\s+me\s+once\b",
+    r"\btry\s+me\b",
+    r"\bcome\s+outside\b",
+    r"\bdestroy\s+you\b",
+    r"\bi\s+will\s+destroy\s+you\b",
+    r"\bi'll\s+destroy\s+you\b",
 ]
 
 # Targeting pronouns -- amplify abuse when directed at a person
@@ -404,6 +442,10 @@ PASSIVE_AGG_PATTERNS = [
     r"\bimpressive\s+stupidity\b",
     r"\bnice\s+way\s+to\s+fail\s+again\b",
     r"\bwhat\s+else\s+can\s+we\s+expect\s+from\s+you\b",
+    r"\binteresting\s+choice\b",
+    r"\bbold\s+of\s+you\s+to\s+assume\b",
+    r"\bsure\s+if\s+you\s+say\s+so\b",
+    r"\bnice\s+stupidity\b",
 ]
 
 SARCASM_MARKERS = [
@@ -648,6 +690,11 @@ def score_single_comment(
     # "stupid" which is in EN_SEVERE).
     if en_mild >= 1 and en_severe >= 1:
         en_severe = max(0, en_severe - en_mild)
+    # And again: bullying phrases like "you are nothing without me" /
+    # "no one else will accept you" already cover EN_HATE entries
+    # ("you are nothing", "nobody likes you"). Don't double-count those.
+    if en_bullying >= 1 and en_hate >= 1:
+        en_hate = max(0, en_hate - en_bullying)
 
     hi_abusive = count_phrases(text_lower, HI_ABUSIVE_SEVERE)
     hi_severe = count_phrases(text_lower, HI_INSULT_SEVERE)
@@ -681,6 +728,23 @@ def score_single_comment(
     passive_agg_hits = count_pattern_hits(text_lower, PASSIVE_AGG_PATTERNS)
     threat_hits = count_pattern_hits(text_lower, THREAT_MARKERS)
     bully_hits = count_pattern_hits(text_lower, BULLY_PATTERNS)
+
+    # Neutralize positive words ("nice", "great", "wow") when the same line
+    # carries clear toxic context — "nice stupidity" / "great job ruining
+    # everything" / "wow genius" are sarcastic, not friendly.
+    if positive >= 1 and (
+        en_severe >= 1 or en_bullying >= 1 or en_mild >= 1
+        or hi_abusive >= 1 or hi_severe >= 1 or en_hate >= 1
+        or passive_agg_hits >= 1 or threat_hits >= 1 or bully_hits >= 1
+    ):
+        positive = 0
+
+    # De-overlap: BULLY_PATTERNS like \bnobody\s+(likes|wants)\s+you\b also
+    # match EN_HATE/EN_BULLYING phrases ("nobody likes you", "nobody wants you
+    # here"). Without dedup, a single bully phrase counts ~3x and pushes
+    # short isolation lines straight to CRITICAL.
+    if bully_hits >= 1 and (en_bullying >= 1 or en_hate >= 1):
+        bully_hits = max(0, bully_hits - 1)
     apology_hits = count_pattern_hits(text_lower, APOLOGY_MARKERS)
     question_hits = count_pattern_hits(text_lower, QUESTION_TONE)
     emoji_playful = has_emoji(comment)

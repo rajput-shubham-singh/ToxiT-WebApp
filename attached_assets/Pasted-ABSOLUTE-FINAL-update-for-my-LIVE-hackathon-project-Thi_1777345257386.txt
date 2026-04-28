@@ -1,0 +1,284 @@
+ABSOLUTE FINAL update for my LIVE hackathon project. This is the last polishing pass. Use efficient edits only. Keep deployment safe. Do NOT rebuild project. Keep Flask structure same.
+
+CRITICAL RULE:
+Do NOT remove old words, old scoring logic, old Hindi/Hinglish data, old features, old UI theme, old demo button, old threat detection. Keep everything old and only ADD / IMPROVE.
+
+==================================================
+MAIN GOAL
+==================================================
+
+Make Local AI highly realistic and judge-proof.
+
+Detect:
+- direct abuse
+- mild negativity
+- rude tone
+- formal workplace toxicity
+- passive aggression
+- sarcasm
+- bullying
+- humiliation
+- manipulation
+- relationship toxicity
+- threats
+- escalation in chats
+
+==================================================
+1. KEEP ALL OLD WORDS + ADD MORE WORDS
+==================================================
+
+Keep all previous words.
+
+Add these new words/phrases:
+
+MILD NEGATIVE:
+irritating
+annoying
+rude
+immature
+careless
+boring
+cringe
+embarrassing
+frustrating
+nonsense
+cheap behavior
+attention seeker
+disrespectful
+childish
+fake person
+arrogant
+selfish
+lazy
+unreliable
+dramatic
+awkward person
+insufferable
+mean person
+clueless
+weird
+overacting
+overconfident
+slow person
+
+SOCIAL INSULTS:
+pick me
+try hard
+wannabe
+fake friend
+snake
+backstabber
+two faced
+show off
+drama queen
+
+FORMAL / WORKPLACE TOXIC:
+you are incompetent
+you are unprofessional
+you are useless
+you add no value
+you should be fired
+worst employee here
+not fit for this role
+pathetic performance
+waste of company time
+learn before speaking
+know your place
+stay in your limits
+you embarrass the team
+liability to team
+hopeless worker
+replaceable employee
+nobody likes working with you
+poor attitude
+waste of salary
+you are dragging the team down
+you are a burden
+you lack basic skills
+dead weight
+
+PASSIVE AGGRESSIVE / SARCASTIC:
+wow genius
+great job ruining everything
+as expected from you
+classic you
+brilliant mistake again
+not surprised from someone like you
+interesting choice
+bold of you to assume
+sure if you say so
+as usual
+nice stupidity
+
+BULLYING / ISOLATION:
+nobody wants you here
+everyone hates you
+go away
+leave the group
+you do not belong here
+
+RELATIONSHIP TOXIC:
+you need me
+you are nothing without me
+no one else will accept you
+stay quiet
+do what I say
+you are lucky I talk to you
+
+THREATS:
+watch yourself
+see what happens
+you will regret it
+try me once
+come outside
+kill you
+beat you
+destroy you
+mar dunga
+dekh lunga
+ghar aa ja
+tod dunga
+
+==================================================
+2. SMART SCORING ENGINE
+==================================================
+
+Use context scoring.
+
+If target words:
+you, your, tu, tera, tere, tujhe, tum
+
+boost score.
+
+If many toxic words together:
+strong combo boost.
+
+If repeated toxic lines:
+increase final risk.
+
+If ALL CAPS:
+increase aggression.
+
+If !!! ??? repeated:
+increase aggression.
+
+Threat phrases:
+minimum HIGH / CRITICAL.
+
+If chat worsens over time:
+increase Drift + Escalation Chance.
+
+==================================================
+3. FALSE POSITIVE CONTROL
+==================================================
+
+Do NOT over-score:
+
+bc net slow hai
+crazy match today
+stupid bug in code
+yaar pagal weather hai
+mad crazy game bro
+
+Use context before scoring.
+
+==================================================
+4. PERFECT TOXICITY METER
+==================================================
+
+Improve meter accuracy + visuals.
+
+Score should feel realistic.
+
+0-10 SAFE
+11-24 LOW RISK
+25-44 MODERATE
+45-69 HIGH RISK
+70-100 CRITICAL
+
+Use smooth animation.
+Neon gradient.
+Green / Yellow / Orange / Red.
+
+==================================================
+5. BETTER RESULT LABELS
+==================================================
+
+Emotion:
+Angry
+Threatening
+Frustrated
+Sarcastic
+Mocking
+Bullying
+Passive Aggressive
+Dominating
+Neutral
+Friendly
+Supportive
+Sad
+
+Intent:
+Insult
+Harassment
+Threat
+Bullying
+Humiliation
+Manipulation
+Provocation
+Disrespect
+Conflict Escalation
+Joke
+Constructive Criticism
+Friendly Chat
+
+==================================================
+6. UI FINAL POLISH
+==================================================
+
+Keep same futuristic dark theme.
+
+Only improve:
+
+cleaner cards
+better spacing
+neon glow
+glass effect
+premium buttons
+smooth animations
+AI scanning loading effect
+better mobile responsive
+clean charts
+cyberpunk premium vibe
+
+==================================================
+7. DEMO BUTTON
+==================================================
+
+Keep one demo button.
+Every click load different smart examples:
+safe / mild / formal / threat / escalation
+
+==================================================
+8. FOOTER
+==================================================
+
+Elegant glowing footer:
+
+Designed by Team Techvengers
+
+==================================================
+9. GEMINI
+==================================================
+
+Keep optional.
+If fails silently use Local AI.
+
+==================================================
+10. IMPORTANT
+==================================================
+
+Do not break live deployment.
+Do not slow startup.
+Efficient edits only.
+Return final polished working version.
