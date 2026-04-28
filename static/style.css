@@ -165,8 +165,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .section { max-width: 1280px; margin: 0 auto 64px; padding: 0 24px; }
 .glass { background: var(--glass-bg); border: 1px solid var(--glass-bd); border-radius: var(--radius); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: var(--shadow-glow), 0 28px 70px rgba(8, 10, 28, 0.6), 0 0 0 1px rgba(139, 92, 246, 0.18) inset; position: relative; transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease; }
 .glass:hover { border-color: rgba(34, 211, 238, 0.28); box-shadow: var(--shadow-glow), 0 36px 90px rgba(8, 10, 28, 0.7), 0 0 0 1px rgba(34, 211, 238, 0.22) inset, 0 0 30px rgba(139, 92, 246, 0.18); transform: translateY(-1px); }
-.card { padding: 30px; }
-.card__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.card { padding: 32px; }
+.card__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 22px; flex-wrap: wrap; }
 .card__header-right { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .card__title { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
 .card__subtitle { color: var(--text-dim); font-size: 13.5px; margin-top: 4px; }

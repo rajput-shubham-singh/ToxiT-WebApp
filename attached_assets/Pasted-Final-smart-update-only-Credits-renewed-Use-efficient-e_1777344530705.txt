@@ -1,0 +1,108 @@
+Final smart update only. Credits renewed. Use efficient edits only. Do NOT rebuild project. Keep deployment safe. Keep all old words, old logic, old UI, old features.
+
+MAIN TASK:
+Add mild negative words + new formal toxic phrases because judges may test these.
+
+==================================================
+1. ADD MILD NEGATIVE / RUDE WORDS
+==================================================
+
+These should NOT return SAFE.
+Return LOW or MODERATE depending on context.
+
+irritating
+annoying
+rude
+immature
+careless
+boring
+cringe
+embarrassing
+frustrating
+nonsense
+cheap behavior
+attention seeker
+disrespectful
+childish
+fake person
+arrogant
+selfish
+stupid behavior
+lazy
+unreliable
+dramatic
+toxic person
+awkward person
+insufferable
+mean person
+
+If combined with target words (you/tu/tum), increase score.
+
+Examples:
+you are irritating = LOW
+you are very annoying = LOW/MODERATE
+tu bahut irritating hai = MODERATE
+
+==================================================
+2. ADD FORMAL TOXIC / PROFESSIONAL WORDS
+==================================================
+
+These should return MODERATE / HIGH.
+
+you are incompetent
+you are unprofessional
+you are useless
+you add no value
+you should be fired
+worst employee here
+not fit for this role
+pathetic performance
+waste of company time
+learn before speaking
+know your place
+stay in your limits
+you embarrass the team
+liability to team
+hopeless worker
+replaceable employee
+nobody likes working with you
+poor attitude
+disgusting behavior
+waste of resources
+
+==================================================
+3. SMART SCORING
+==================================================
+
+If direct target words:
+you, your, tu, tera, tum, tujhe
+
+boost score.
+
+If multiple rude/formal toxic lines:
+increase final risk strongly.
+
+==================================================
+4. KEEP OLD DATA
+==================================================
+
+Do not remove old gaali words.
+Do not remove old Hindi/Hinglish words.
+Do not remove old threat logic.
+
+==================================================
+5. UI
+==================================================
+
+Only tiny polish:
+better spacing
+cleaner cards
+same futuristic theme
+
+==================================================
+6. IMPORTANT
+==================================================
+
+Do not break live deployment.
+Minimal efficient edits only.
+Return final working version.

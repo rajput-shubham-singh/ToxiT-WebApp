@@ -156,6 +156,41 @@ EN_BULLYING = {
     "trash person",
     "disgusting behavior",
     "waste of time",
+    "waste of company time",
+    "waste of resources",
+    "nobody likes working with you",
+    "poor attitude",
+    "replaceable employee",
+}
+
+# MILD rude / negative descriptors. These are not severe abusives, but they
+# should NOT come back as SAFE. They land in LOW alone, and bump to MODERATE
+# when paired with targeting ("you/tu/...") or intensifiers ("very/bahut").
+EN_MILD = {
+    "irritating",
+    "rude",
+    "immature",
+    "careless",
+    "boring",
+    "cringe",
+    "embarrassing",
+    "frustrating",
+    "nonsense",
+    "disrespectful",
+    "childish",
+    "arrogant",
+    "selfish",
+    "lazy",
+    "unreliable",
+    "dramatic",
+    "insufferable",
+    "awkward",
+    "cheap behavior",
+    "fake person",
+    "stupid behavior",
+    "toxic person",
+    "awkward person",
+    "mean person",
 }
 
 # --- HINDI / HINGLISH / ROMAN HINDI ---
@@ -528,6 +563,7 @@ ALL_TOXIC_WORDS = (
     | EN_AGGRESSIVE
     | EN_HATE
     | EN_BULLYING
+    | EN_MILD
 )
 
 
@@ -599,6 +635,7 @@ def score_single_comment(
     en_hate = count_phrases(text_lower, EN_HATE)
     en_hate_severe = count_phrases(text_lower, EN_HATE_SEVERE)
     en_bullying = count_phrases(text_lower, EN_BULLYING)
+    en_mild = count_phrases(text_lower, EN_MILD)
 
     # De-overlap: bullying phrases like "you are useless" / "pathetic
     # performance" / "trash person" already contain an EN_SEVERE word
@@ -607,6 +644,10 @@ def score_single_comment(
     # from en_severe so the bullying weight is the dominant signal.
     if en_bullying >= 1 and en_severe >= 1:
         en_severe = max(0, en_severe - en_bullying)
+    # Same overlap fix for mild phrases like "stupid behavior" (contains
+    # "stupid" which is in EN_SEVERE).
+    if en_mild >= 1 and en_severe >= 1:
+        en_severe = max(0, en_severe - en_mild)
 
     hi_abusive = count_phrases(text_lower, HI_ABUSIVE_SEVERE)
     hi_severe = count_phrases(text_lower, HI_INSULT_SEVERE)
@@ -695,6 +736,21 @@ def score_single_comment(
     if en_bullying >= 1 and has_targeting:
         formal_target_boost = 6 + (en_bullying - 1) * 4  # 6..N
 
+    # Mild rude descriptors ("irritating", "rude", "lazy", ...) get a small
+    # bump when targeted ("you are irritating") or intensified
+    # ("tu bahut irritating hai" / "very annoying"), pushing them from LOW
+    # into MODERATE without ever flooring to HIGH.
+    intensifier_hits = count_pattern_hits(
+        text_lower,
+        [r"\bbahut\b", r"\bvery\b", r"\breally\b", r"\bextremely\b", r"\btoo\b"],
+    )
+    mild_context_boost = 0
+    if en_mild >= 1:
+        if has_targeting:
+            mild_context_boost += 8
+        if intensifier_hits >= 1:
+            mild_context_boost += 6
+
     raw = (
         hi_abusive * 30
         + hi_severe * 22
@@ -705,7 +761,9 @@ def score_single_comment(
         + en_aggressive * 12
         + en_hate * 30
         + en_bullying * 26
+        + en_mild * 14
         + formal_target_boost
+        + mild_context_boost
         + attack_hits * 14
         + threat_hits * 26
         + bully_hits * 16
@@ -780,6 +838,7 @@ def score_single_comment(
             "aggressive": hi_aggro + en_aggressive,
             "hate": en_hate,
             "bullying": en_bullying + bully_hits,
+            "mild": en_mild,
             "attack": attack_hits,
             "threat": threat_hits,
             "sarcasm": sarcasm_hits,
@@ -1007,6 +1066,20 @@ def analyze_history(
     if bullying_msg_count >= 2:
         bump = min(15, 6 + (bullying_msg_count - 2) * 4)  # +6..+15
         toxicity_score = min(100, toxicity_score + bump)
+
+    # Stacked mild rude lines ("you are rude" + "so immature" + "very lazy")
+    # also count as a sustained pattern — smaller bump than bullying so single
+    # rude lines don't escalate, but 3+ pile up into MOD/HIGH territory.
+    rude_msg_count = sum(
+        1
+        for b in breakdown
+        if (
+            b.get("signals", {}).get("mild", 0) >= 1
+            or b.get("signals", {}).get("bullying", 0) >= 1
+        )
+    )
+    if rude_msg_count >= 3:
+        toxicity_score = min(100, toxicity_score + min(10, 4 + (rude_msg_count - 3) * 2))
 
     drift_score = 0
     drift_type = "Stable"

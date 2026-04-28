@@ -40,6 +40,7 @@ The app runs via gunicorn using the virtual environment at `.pythonlibs/`:
 - 2026-04-27: Gemini mode now uses Gemini's response directly (no 40/60 blend) when the toggle is on and a key is set; silent fallback to Local AI on failure.
 - 2026-04-27: Final-label bands tuned to spec (0-10 Safe / 11-24 Low / 25-44 Mod / 45-69 High / 70-100 Critical). Added `HI_ABUSIVE_TIER_S` (madarchod-class) so only the most extreme abusives auto-floor to Critical; other severe abusives directed at a person floor to High instead. Expanded `EN_BULLYING`, `HI_AGGRESSIVE`, `THREAT_MARKERS`, `PASSIVE_AGG_PATTERNS` with workplace/relationship/sarcasm phrases. Bullying phrases now trigger the targeting amplifier so "You should be fired" / "No one likes you" surface above LOW. All 17 judge tests pass.
 - 2026-04-27: Main "Demo" button cycles through 5 judge-spec sets (Safe → Mild → Formal → Threat → Escalation). Hinglish demo button kept. Footer now shows "Designed by Team Techvengers".
+- 2026-04-28: Added `EN_MILD` lexicon (irritating, rude, immature, careless, boring, cringe, lazy, arrogant, selfish, fake person, toxic person, stupid behavior, ...) — single occurrence lands LOW, with target/intensifier bumps to MOD. Added missing formal phrases to `EN_BULLYING` (waste of company time, nobody likes working with you, poor attitude, waste of resources, replaceable employee). Stacked rude/bullying lines now trigger an additional aggregate boost (rude_msg_count >= 3 → +4..+10). Tiny card spacing polish (padding 30→32, header gap 16→18). 48/48 tests pass.
 
 ## Features
 
