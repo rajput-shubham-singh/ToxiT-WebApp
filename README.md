@@ -1,4 +1,4 @@
-# ToxiT-WebApp 🚀
+# ToxiTrack-AI 🚀
 
 ### AI Powered Toxicity & Behavior Analysis Platform
 
@@ -7,7 +7,7 @@ ToxiT-WebApp is a smart web application designed to analyze text conversations a
 Built for online communities, gaming chats, workplaces, and social platforms where healthy communication matters.
 
 ---
-
+Repository Name: ToxiT-WebApp
 ## 🌟 Problem We Solved
 
 Online chats often become toxic before moderators notice. Most tools only detect obvious abusive words and miss:
